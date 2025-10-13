@@ -11,6 +11,10 @@ import { ComponentValidation, MNAStampingHelpers } from '../../math/numerical/sa
 export class IdealTransformer implements ComponentInterface {
   readonly type = 'K'; // SPICE中常用 K 表示理想变压器
 
+  // 🔥 樞軸擾動 (Pivot Perturbation) 常數
+  // 用於解決擴展MNA中理想變壓器引起的零對角線問題
+  private static readonly PIVOT_TOLERANCE = 1e-12;
+
   // 需要两个额外的支路电流变量：初级和次级
   private _primaryCurrentIndex?: number;
   private _secondaryCurrentIndex?: number;
@@ -89,6 +93,11 @@ export class IdealTransformer implements ComponentInterface {
     if (np2 !== undefined) MNAStampingHelpers.safeMatrixAdd(context.matrix, ip, np2, -1, this.name);
     if (ns1 !== undefined) MNAStampingHelpers.safeMatrixAdd(context.matrix, ip, ns1, -n, this.name);
     if (ns2 !== undefined) MNAStampingHelpers.safeMatrixAdd(context.matrix, ip, ns2, n, this.name);
+    
+    // 🔥🔥 關鍵修復：為初級電流支路方程添加樞軸擾動 🔥🔥
+    // 原方程: Vp - n*Vs = 0 (對 ip 的偏導數為 0，導致零對角線)
+    // 修正後: Vp - n*Vs + (1e-12)*ip = 0 (對角線元素為 1e-12)
+    MNAStampingHelpers.safeMatrixAdd(context.matrix, ip, ip, IdealTransformer.PIVOT_TOLERANCE, this.name);
     
     // 方程2: 电流关系 n*ip + is = 0
     MNAStampingHelpers.safeMatrixAdd(context.matrix, is, ip, n, this.name);

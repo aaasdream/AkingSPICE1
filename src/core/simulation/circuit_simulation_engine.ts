@@ -49,6 +49,7 @@ import type {
 import { isIntelligentDeviceModel } from '../devices/intelligent_device_model';
 import { EventDetector } from '../events/detector';
 import { GeneralizedHomotopy, type IHomotopySystem } from '../../math/numerical/homotopy';
+import { globalSnapshotManager } from '../diagnostics/failure_snapshot';
 
 /**
  * 仿真状态枚举
@@ -479,6 +480,45 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
               // 无法继续，仿真失败
               this._state = SimulationState.FAILED;
               this._logEvent('FATAL', undefined, 'Time step fell below minimum and could not recover.');
+              
+              // 🔬 捕獲失敗快照
+              console.log(`🔬 準備捕獲快照: t=${this._currentTime}, enabled=${globalSnapshotManager.isEnabled()}`);
+              if (globalSnapshotManager.isEnabled()) {
+                try {
+                  console.log('🔬 開始捕獲快照...');
+                  
+                  // 使用系統矩陣和RHS (如果可用)
+                  const systemSize = this._solutionVector.size;
+                  const matrix = this._systemMatrix || new SparseMatrix(systemSize, systemSize);
+                  const rhsVector = this._rhsVector || new Vector(systemSize);
+                  
+                  // 計算 residual = b - J*x
+                  const Jx = matrix.multiply(this._solutionVector) as Vector;
+                  const residual = rhsVector.minus(Jx);
+                  
+                  // 捕獲快照
+                  const snapshotFile = globalSnapshotManager.captureSnapshot(
+                    'timestep_minimum',
+                    this._currentTime,
+                    this._currentTimeStep,
+                    this._solutionVector,
+                    residual,  // 正確的 residual
+                    matrix,
+                    [], // Newton history 不可用
+                    {
+                      tolerance: 1e-8,
+                      maxIterations: 50,
+                      failureReason: 'Time step fell below minimum',
+                      failureLayer: 'TIMESTEP_CONTROL',
+                      rhs: rhsVector  // 🔥 NEW: Include RHS for debugging
+                    }
+                  );
+                  console.log(`✅ 快照已保存: ${snapshotFile}`);
+                } catch (snapshotError) {
+                  console.error('快照捕獲失敗:', snapshotError);
+                }
+              }
+              
               break;
             }
           }
@@ -587,6 +627,10 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       return this._rhsVector;
   }
 
+  getGroundNodeIndex(): number | undefined {
+      return this._nodeMapping.get('0');
+  }
+
   // --- 實現 IMNASystem 所需的核心方法 ---
   
   /**
@@ -609,7 +653,10 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       // 注意：這裡不能用 await，因為 IMNASystem 介面是同步的
       // 因此 _assembleSystem 也需要改成同步
       // 🎯 瞬態分析時使用 this._currentTimeStep，DC 分析時使用 0
-      this._assembleSystem(time, 0, this._currentTimeStep); 
+      // 🔥 CRITICAL FIX: Use gmin=1e-9 (SPICE default) to ensure all nodes have diagonal elements
+      //    This prevents matrix singularity for nodes connected only to voltage sources
+      //    Previous value 1e-12 was too small and caused numerical instability (condition number issues)
+      this._assembleSystem(time, 1e-9, this._currentTimeStep); 
   }
 
   // === 私有方法实现 ===
@@ -1365,9 +1412,31 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         const F_neg = F.scale(-1);
         const delta_x = await this._solveLinearSystem(J, F_neg);
 
-        // 檢查求解器是否返回了無效值
-        if (isNaN(delta_x.norm())) {
-            this._logEvent('DC_SOLVER_ERROR', undefined, `[Iter ${iterations}] Linear solver returned NaN.`);
+        // 🔥 FIX: 完整的 NaN 檢查 - 檢查向量中的每個元素
+        // 不只檢查 norm()，因為 NaN 可能被掩蓋在部分元素中
+        let hasNaN = false;
+        const n = delta_x.size;
+        for (let i = 0; i < n; i++) {
+            const val = delta_x.get(i);
+            if (!isFinite(val)) {  // 同時捕獲 NaN 和 Infinity
+                hasNaN = true;
+                // 嘗試找到節點名稱（如果可能）
+                let nodeName = `index ${i}`;
+                for (const [name, idx] of this._nodeMapping) {
+                    if (idx === i) {
+                        nodeName = name;
+                        break;
+                    }
+                }
+                this._logEvent('DC_SOLVER_ERROR', undefined, 
+                    `[Iter ${iterations}] delta_x[${i}] = ${val} (non-finite at node '${nodeName}')`);
+                break;
+            }
+        }
+        
+        if (hasNaN || isNaN(delta_x.norm())) {
+            this._logEvent('DC_SOLVER_ERROR', undefined, 
+                `[Iter ${iterations}] Linear solver returned invalid solution. Possible causes: singular matrix, ill-conditioned system, or numerical overflow.`);
             return false;
         }
 
@@ -1419,9 +1488,53 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     const t_start = this._currentTime;
     let dt = this._currentTimeStep;
 
+    // --- 🌊 階段 0: 斜坡區間檢測 (Ramp Interval Detection) ---
+    // 檢查當前時間是否處於電壓源的斜坡變化區間
+    let isInRamp = false;
+    let rampEndTime = Infinity;
+    let rampSource = 'None';
+    
+    for (const device of this._devices.values()) {
+      if ((device as any).getRampIntervals) {
+        try {
+          const ramps: [number, number][] = (device as any).getRampIntervals(t_start, t_start + dt);
+          for (const [tStart, tEnd] of ramps) {
+            // 檢查當前時間是否在此斜坡區間內
+            if (t_start >= tStart && t_start < tEnd) {
+              isInRamp = true;
+              rampEndTime = tEnd;
+              rampSource = device.name;
+              // 約束步長，確保不會超出斜坡區間
+              dt = Math.min(dt, tEnd - t_start);
+              break;
+            }
+          }
+        } catch (error) {
+          // 容錯處理
+          continue;
+        }
+      }
+      if (isInRamp) break;
+    }
+
+    // 🔥 如果在斜坡區間，使用更保守的步長控制
+    if (isInRamp) {
+      // 🎯 關鍵策略：在斜坡區間使用比 minTimeStep 更大的步長
+      // 這樣可以避免時間步過小導致的數值剛性問題
+      const RAMP_MAX_DT = 1e-9; // 1ns - 是 minTimeStep (1e-10) 的 10 倍
+      const RAMP_MIN_DT = 5e-10; // 0.5ns - 斜坡區間的最小步長
+      
+      // 使用較大的步長，但不超過斜坡剩餘長度
+      dt = Math.max(RAMP_MIN_DT, Math.min(dt, RAMP_MAX_DT, rampEndTime - t_start));
+      
+      console.log(`[RAMP_DEBUG] In ramp from ${rampSource}, t=${t_start.toExponential(4)}s, setting dt to ${dt.toExponential(3)}s (ramp: ${RAMP_MIN_DT.toExponential(1)}s-${RAMP_MAX_DT.toExponential(1)}s), ramp ends at ${rampEndTime.toExponential(4)}s`);
+      this._logEvent('RAMP_DETECTED', rampSource, `In ramp, using dt=${dt.toExponential(2)}s`);
+    }
+
     // --- 🔮 階段 1: 預測 (Proactive Prediction) ---
     // 檢查是否有已知的斷點 (如 PULSE 源的邊沿)
     let earliestBreakpoint = Infinity;
+    let breakpointSource = 'None';
     for (const device of this._devices.values()) {
       if (device.getBreakpoints) {
         try {
@@ -1430,6 +1543,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
             const firstBreakpoint = breakpoints[0];
             if (firstBreakpoint !== undefined && firstBreakpoint < earliestBreakpoint) {
               earliestBreakpoint = firstBreakpoint;
+              breakpointSource = device.name; // 記錄是哪個設備的斷點
             }
           }
         } catch (error) {
@@ -1439,13 +1553,35 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       }
     }
 
+    // 🔥🔥 關鍵調試日誌 🔥🔥
+    if (earliestBreakpoint < Infinity) {
+      console.log(`[BREAKPOINT_DEBUG] t=${t_start.toExponential(4)}s, dt=${dt.toExponential(4)}s. Found breakpoint from ${breakpointSource} at t=${earliestBreakpoint.toExponential(4)}s.`);
+    }
+
     // --- ⚖️ 階段 2: 約束 (Constrain) ---
     // 如果斷點在當前步長內，則縮小步長以精確命中斷點
+    let willHitBreakpoint = false;
     if (earliestBreakpoint < t_start + dt) {
       const constrainedDt = earliestBreakpoint - t_start;
-      // 確保步長不會變得過小，至少要有一點點推進
-      dt = Math.max(constrainedDt, this._config.minTimeStep * 1.1);
-      this._logEvent('BREAKPOINT_ADJUST', undefined, `Time step constrained to ${dt.toExponential(3)}s to hit breakpoint at ${earliestBreakpoint.toExponential(3)}s.`);
+      
+      // 🔥 關鍵修復：如果斷點非常接近（小於 minTimeStep），直接跳到斷點！
+      // 這是因為我們不能跨越斷點，即使距離很小
+      if (constrainedDt > this._config.minTimeStep * 0.1) {
+        // 正常情況：斷點距離合理，使用約束步長
+        dt = constrainedDt;
+        willHitBreakpoint = true;
+        this._logEvent('BREAKPOINT_ADJUST', breakpointSource, `Time step constrained to ${dt.toExponential(3)}s to hit breakpoint at ${earliestBreakpoint.toExponential(3)}s.`);
+      } else if (constrainedDt > 0) {
+        // 🔥 特殊情況：斷點就在眼前（< 0.1 * minTimeStep），強制使用極小步長直接跳到斷點
+        // 不能忽略它，因為跨越斷點會導致 Newton 發散！
+        dt = constrainedDt;
+        willHitBreakpoint = true;
+        console.log(`[BREAKPOINT_DEBUG] Breakpoint is very close (${constrainedDt.toExponential(2)}s), forcing step to hit it exactly.`);
+        this._logEvent('BREAKPOINT_ADJUST', breakpointSource, `Forcing tiny step ${dt.toExponential(3)}s to hit imminent breakpoint at ${earliestBreakpoint.toExponential(3)}s.`);
+      } else {
+        // constrainedDt <= 0：我們已經在斷點上或已經過了（浮點數誤差）
+        console.log(`[BREAKPOINT_DEBUG] Already at or past breakpoint (${constrainedDt.toExponential(2)}s), proceeding normally.`);
+      }
     }
 
     // --- ⚙️ 階段 3: 積分 (Integrate) ---
@@ -1490,8 +1626,68 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       
       await this._updateDeviceStates(); // 更新智能設備的內部狀態
       
-      // 使用積分器建議的下一步長
-      this._currentTimeStep = this._adaptTimeStep(integratorResult.nextDt);
+      // 🔥 關鍵修復：如果我們剛剛命中了一個斷點，必須重啟積分器
+      // 因為在斷點處，系統的連續性可能被打破（例如電壓源跳變）
+      if (willHitBreakpoint) {
+        console.log(`[BREAKPOINT_DEBUG] Hit breakpoint at t=${t_end.toExponential(4)}s, restarting integrator.`);
+        
+        // 🎯 在斷點處重新計算 DC 工作點作為新的初始狀態
+        // 這確保了解與新的電壓源值一致
+        try {
+          console.log(`[BREAKPOINT_DEBUG] Recomputing DC operating point at breakpoint...`);
+          this.assemble(this._solutionVector, this._currentTime);
+          // 使用當前解作為初始猜測，執行幾步 Newton 迭代來改善它
+          const J = this.systemMatrix;
+          const b = this.getRHS();
+          const residual = b.minus(J.multiply(this._solutionVector)) as Vector;
+          const residualNorm = residual.norm();
+          console.log(`[BREAKPOINT_DEBUG] Initial residual at breakpoint: ${residualNorm.toExponential(3)}`);
+          
+          if (residualNorm > 1e-6) {
+            // 執行幾步 Newton 來改善解
+            const MAX_BP_NEWTON = 5;
+            for (let i = 0; i < MAX_BP_NEWTON; i++) {
+              try {
+                const delta = (J as any).solve(residual);
+                this._solutionVector = (this._solutionVector as Vector).plus(delta) as Vector;
+                // 強制地節點為 0
+                const groundIndex = this.getGroundNodeIndex();
+                if (groundIndex !== undefined) {
+                  this._solutionVector.set(groundIndex, 0.0);
+                }
+                this.assemble(this._solutionVector, this._currentTime);
+                const newResidual = this.getRHS().minus(this.systemMatrix.multiply(this._solutionVector)) as Vector;
+                const newNorm = newResidual.norm();
+                console.log(`[BREAKPOINT_DEBUG] After Newton step ${i+1}: residual = ${newNorm.toExponential(3)}`);
+                if (newNorm < 1e-8) break;
+              } catch (error) {
+                console.log(`[BREAKPOINT_DEBUG] Newton step ${i+1} failed, continuing with current solution`);
+                break;
+              }
+            }
+          }
+        } catch (error) {
+          console.log(`[BREAKPOINT_DEBUG] DC recomputation failed, using existing solution: ${error}`);
+        }
+        
+        await this._integrator.restart({
+          time: this._currentTime,
+          solution: this._solutionVector as Vector,
+          // 在斷點處，導數可能不連續，最安全的假設是從零開始
+          derivative: Vector.zeros(this._solutionVector.size),
+        });
+        this._logEvent('INTEGRATOR_RESTART', breakpointSource, `Integrator restarted at breakpoint t=${t_end.toExponential(3)}s.`);
+        
+        // 🎯 斷點後使用更大的初始步長，避免過小步長導致的數值剛性
+        // 特別是對於進入斜坡區間的情況
+        const POST_BREAKPOINT_DT = 1e-9; // 1ns - 比 minTimeStep 大 10 倍
+        this._currentTimeStep = POST_BREAKPOINT_DT;
+        console.log(`[BREAKPOINT_DEBUG] Set post-breakpoint dt to ${POST_BREAKPOINT_DT.toExponential(2)}s`);
+      } else {
+        // 正常情況：使用積分器建議的下一步長
+        this._currentTimeStep = this._adaptTimeStep(integratorResult.nextDt);
+      }
+      
       this._logEvent('STEP_ACCEPTED', undefined, `Step to ${t_end.toExponential(3)}s. Next dt: ${this._currentTimeStep.toExponential(3)}s.`);
       return true;
 
@@ -1653,22 +1849,15 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     }
     // 🔥🔥 Gmin Shunting 結束 🔥🔥
 
-    // 🧠 **关键修复：强制执行接地节点 (Node 0) 约束**
-    // 这是 MNA 方法中的标准实践，用于消除矩阵的奇异性。
-    // 通过将接地节点的行和列清零，并在对角线上放置1，我们强制 V[0] = 0。
-    const groundNodeIndex = this._nodeMapping.get('0');
-    if (groundNodeIndex !== undefined) {
-      // 清除地节点的行和列
-      const n = this._systemMatrix.rows;
-      for (let j = 0; j < n; j++) {
-        this._systemMatrix.set(groundNodeIndex, j, 0);  // 清除行
-      }
-      for (let i = 0; i < n; i++) {
-        this._systemMatrix.set(i, groundNodeIndex, 0);  // 清除列
-      }
-      this._systemMatrix.set(groundNodeIndex, groundNodeIndex, 1.0);  // 设置对角线
-      this._rhsVector.set(groundNodeIndex, 0.0);  // RHS = 0
-    }
+    // 🧠 **Ground Node Handling**
+    // We use the submatrix method in _solveLinearSystem to properly handle the ground node.
+    // NO NEED to modify the matrix here - it will be handled correctly during solve.
+    // 
+    // ❌ REMOVED: The old code that cleared ground node row/column was HARMFUL!
+    //    It deleted voltage source KVL equations (e.g., J[iv, groundIndex] = -1)
+    //    which caused residual = voltage instead of residual = 0
+    // 
+    // ✅ NOW: Let devices assemble normally, then use submatrix method to remove ground node
     
     this._performanceMetrics.matrixAssemblyTime += performance.now() - assemblyStartTime;
   }
@@ -1694,7 +1883,22 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       }
     }
 
-    // 2. Solve the smaller, non-singular system.
+    // 🔬 2a. 診斷並修復零對角元素 (Critical Fix for Matrix Singularity)
+    const MIN_DIAGONAL = 1e-15; // 最小對角元素閾值
+    let zerodiagonalCount = 0;
+    for (let i = 0; i < subRhs.size; i++) {
+      const diagValue = (subMatrix as SparseMatrix).get(i, i);
+      if (Math.abs(diagValue) < MIN_DIAGONAL) {
+        console.warn(`⚠️ [Diagonal Fix] Row ${i}: diagonal = ${diagValue.toExponential(2)} → forcing to 1e-12`);
+        (subMatrix as SparseMatrix).set(i, i, 1e-12);
+        zerodiagonalCount++;
+      }
+    }
+    if (zerodiagonalCount > 0) {
+      console.warn(`⚠️ [Diagonal Fix] Fixed ${zerodiagonalCount} near-zero diagonal elements`);
+    }
+    
+    // 2b. Solve the smaller, non-singular system.
     let subSolution: IVector;
     try {
       subSolution = (subMatrix as SparseMatrix).solve(subRhs);

@@ -80,9 +80,10 @@ export interface ComponentInterface {
 
   /**
    * 🆕 返回一个或多个条件函数，其零点对应一个事件。
-   * @returns { type: EventType, condition: (v: IVector) => number }[]
+   * 條件函數接收解向量和節點映射，返回一個數值，其零交叉點表示事件發生
+   * @returns { type: EventType, condition: (v: IVector, nodeMap: Map<string, number>) => number }[]
    */
-  getEventFunctions?(): { type: string, condition: (v: IVector) => number }[];
+  getEventFunctions?(): { type: string, condition: (v: IVector, nodeMap: Map<string, number>) => number }[];
 
   /**
    * 📢 处理一个已确认发生的事件

@@ -96,3 +96,32 @@ __pycache__/
 src/**/*.js
 src/**/*.js.map
 src/**/*.d.ts
+
+# ====================================
+# Forensic Analysis / Failure Snapshots
+# ====================================
+# Large binary dumps from convergence failure diagnostics
+failure_*.json
+failure_*.bin
+failure_*.mtx
+failure_*.txt
+failure_*.csv
+failure_*.npy
+failure_*.npz
+snapshots/
+dumps/
+forensic_*.json
+forensic_*.bin
+forensic_*.mtx
+
+# Python verification scripts (generated)
+verify_*.py
+replay_*.py
+matrix_export.py
+
+# Analysis output files
+analysis_*.txt
+analysis_*.log
+convergence_history_*.json
+jacobian_*.mtx
+residual_*.csv

@@ -365,18 +365,66 @@ export class IntelligentDiode extends IntelligentDeviceModelBase {
       return IntelligentDiode.MIN_CONDUCTANCE;
     }
 
-    return Math.max(conductance, IntelligentDiode.MIN_CONDUCTANCE);
+    // 🔥 FIX: 在反向偏壓區，電流是飽和的（Id = -Is），導數應該 ≈ 0
+    // 不要強制使用 MIN_CONDUCTANCE，因為這會破壞雅可比矩陣的正確性
+    // 只有在導通區且導數太小時才使用 MIN_CONDUCTANCE
+    if (alpha > 0.01 && conductance < IntelligentDiode.MIN_CONDUCTANCE) {
+      // 在導通區（alpha > 0.01），確保最小電導避免奇異性
+      return IntelligentDiode.MIN_CONDUCTANCE;
+    }
+
+    return conductance;
   }
 
+  /**
+   * 🔥 FIX: 計算總電容 = 結電容 (Cj) + 擴散電容 (Cd)
+   * 
+   * 物理背景：
+   *   1. 結電容 Cj：來自空間電荷區的電荷儲存
+   *      - 正向偏壓：線性增加 Cj0 * (1 + Vd/Vj)
+   *      - 反向偏壓：冪次減少 Cj0 * (1 - Vd/Vj)^(-m)
+   * 
+   *   2. 擴散電容 Cd：來自少數載流子的擴散/復合
+   *      - 正向偏壓主導：Cd = tt * g，其中 g = dI/dVd（電導）
+   *      - 反向偏壓可忽略（無擴散電流）
+   * 
+   *   3. 總電容：C_total = Cj + Cd（正向時），Cj（反向時）
+   * 
+   * 📚 參考：SPICE User's Guide, "Diode Diffusion Capacitance"
+   */
   private _computeCapacitance(Vd: number): number {
-    const { Cj0, Vj, m } = this._diodeParams;
+    const { Cj0, Vj, m, tt } = this._diodeParams;
     
+    // === 1. 計算結電容 Cj ===
+    let Cj: number;
     if (Vd >= 0) {
-      return Cj0 * (1 + Vd / Vj);
+      // 正向偏壓：線性模型
+      Cj = Cj0 * (1 + Vd / Vj);
     } else {
+      // 反向偏壓：冪次模型
       const factor = Math.pow(1 - Vd / Vj, -m);
-      return Cj0 * factor;
+      Cj = Cj0 * factor;
     }
+    
+    // === 2. 計算擴散電容 Cd ===
+    let Cd = 0;
+    if (Vd > 0 && tt > 0) {
+      // 擴散電容只在正向導通時顯著
+      // Cd = tt * g，其中 g 是微分電導
+      const conductance = this._computeConductance(Vd);
+      Cd = tt * conductance;
+      
+      // 安全檢查：擴散電容必須為正
+      if (!isFinite(Cd) || Cd < 0) {
+        console.warn(`⚠️ Diode ${this.deviceId}: Invalid diffusion capacitance! Vd=${Vd}, Cd=${Cd}, g=${conductance}`);
+        Cd = 0;
+      }
+    }
+    
+    // === 3. 總電容 ===
+    const C_total = Cj + Cd;
+    
+    return C_total;
   }
 
   private _createNewDeviceState(

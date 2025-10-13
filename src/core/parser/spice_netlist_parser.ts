@@ -631,11 +631,119 @@ export class SpiceNetlistParser {
     return num;
   }
 
+  /**
+   * 🔥 FIX: 安全的算術表達式求值器
+   * 
+   * 支持的運算：
+   *   - 基本運算：+, -, *, /
+   *   - 括號優先級：( )
+   *   - 工程單位：1k, 2.5meg, 100n 等
+   * 
+   * 範例：
+   *   "1k * 0.5" → 500
+   *   "{Rload} * 2" → (已替換參數後計算)
+   *   "100n + 50n" → 150e-9
+   * 
+   * 安全性：
+   *   - 不使用 eval()，避免代碼注入
+   *   - 僅允許數字和基本運算符
+   *   - 使用 Shunting Yard 算法處理優先級
+   */
   private _safeEval(expr: string): number {
-      // 在这个阶段，所有参数和常数都应该已经被替换
-      // 我们只处理最终的数值字符串
-      // 复杂的表达式如 '1k*5' 需要一个更复杂的解析器
-      return this._parseEngineeringNotation(expr);
+      const trimmed = expr.trim();
+      
+      // 如果是簡單的數值（無運算符），直接解析
+      if (!/[+\-*/()]/.test(trimmed)) {
+          return this._parseEngineeringNotation(trimmed);
+      }
+      
+      // 🔥 使用正則表達式分詞，同時處理工程單位
+      // 匹配：數字（可能帶工程單位）、運算符、括號
+      const tokenRegex = /([0-9.]+[a-zA-Z]*|\+|\-|\*|\/|\(|\))/g;
+      const tokens = trimmed.match(tokenRegex);
+      
+      if (!tokens) {
+          throw new Error(`Cannot tokenize expression: ${expr}`);
+      }
+      
+      // 🔥 Shunting Yard 算法：中綴表達式 → 後綴表達式（RPN）
+      const outputQueue: (number | string)[] = [];
+      const operatorStack: string[] = [];
+      const precedence: { [key: string]: number } = { '+': 1, '-': 1, '*': 2, '/': 2 };
+      
+      for (const token of tokens) {
+          // 數字（可能帶工程單位）
+          if (/^[0-9.]/.test(token)) {
+              outputQueue.push(this._parseEngineeringNotation(token));
+          }
+          // 左括號
+          else if (token === '(') {
+              operatorStack.push(token);
+          }
+          // 右括號
+          else if (token === ')') {
+              while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1] !== '(') {
+                  outputQueue.push(operatorStack.pop()!);
+              }
+              operatorStack.pop(); // 移除左括號
+          }
+          // 運算符
+          else if (token in precedence) {
+              while (operatorStack.length > 0) {
+                  const top = operatorStack[operatorStack.length - 1];
+                  if (!top || top === '(') break;
+                  const topPrec = precedence[top];
+                  const tokenPrec = precedence[token];
+                  if (topPrec === undefined || tokenPrec === undefined) break;
+                  if (topPrec < tokenPrec) break;
+                  outputQueue.push(operatorStack.pop()!);
+              }
+              operatorStack.push(token);
+          }
+      }
+      
+      // 清空剩餘運算符
+      while (operatorStack.length > 0) {
+          outputQueue.push(operatorStack.pop()!);
+      }
+      
+      // 🔥 計算 RPN 表達式
+      const evalStack: number[] = [];
+      for (const item of outputQueue) {
+          if (typeof item === 'number') {
+              evalStack.push(item);
+          } else {
+              // 運算符
+              if (evalStack.length < 2) {
+                  throw new Error(`Invalid expression structure: ${expr}`);
+              }
+              const b = evalStack.pop()!;
+              const a = evalStack.pop()!;
+              
+              switch (item) {
+                  case '+': evalStack.push(a + b); break;
+                  case '-': evalStack.push(a - b); break;
+                  case '*': evalStack.push(a * b); break;
+                  case '/': 
+                      if (b === 0) throw new Error(`Division by zero in expression: ${expr}`);
+                      evalStack.push(a / b); 
+                      break;
+                  default:
+                      throw new Error(`Unknown operator: ${item}`);
+              }
+          }
+      }
+      
+      if (evalStack.length !== 1) {
+          throw new Error(`Expression evaluation failed: ${expr}`);
+      }
+      
+      const result = evalStack[0];
+      if (result === undefined) {
+          throw new Error(`Expression evaluation returned undefined: ${expr}`);
+      }
+      
+      return result;
   }
 
   private _postProcess(): void {

@@ -473,8 +473,10 @@ export class IntelligentMOSFET extends IntelligentDeviceModelBase {
     const Id_linear_mag = Kp * (Vov_safe * Vds_safe - 0.5 * Vds_safe * Vds_safe);
     const Id_linear = Id_linear_mag * Vds_sign; // 恢复符号
     
+    // 🔥 CRITICAL FIX: 饱和区电流不应依赖 Vds 的符号！
     // 饱和区（恒流区）：Id = 0.5 * Kp * Vov²
-    const Id_saturation = 0.5 * Kp * Vov_safe * Vov_safe * Vds_sign;
+    // 在飽和區，Id 的大小僅由 Vgs 決定，是一個壓控電流源
+    const Id_saturation_mag = 0.5 * Kp * Vov_safe * Vov_safe;
     
     // === 步骤 6: 沟道长度调制因子 ===
     const CLM = 1 + lambda * Vds_safe; // 使用绝对值确保正值
@@ -484,8 +486,10 @@ export class IntelligentMOSFET extends IntelligentDeviceModelBase {
     // alpha_sat: 在 Vdsat 处平滑从线性过渡到饱和
     const alpha_sat = 0.5 * (1 + Math.tanh((Vds_safe - Vdsat) / SMOOTH_WIDTH));
     
-    // 首先混合线性区和饱和区
-    const Id_on = (Id_linear * (1 - alpha_sat) + Id_saturation * alpha_sat) * CLM;
+    // 首先混合线性区和饱和区的幅值
+    const Id_on_mag = (Id_linear_mag * (1 - alpha_sat) + Id_saturation_mag * alpha_sat) * CLM;
+    // 然後統一應用方向
+    const Id_on = Id_on_mag * Vds_sign;
     
     // 然后混合截止区和导通区
     const Id_final = Id_cutoff * (1 - alpha_on) + Id_on * alpha_on;
@@ -542,7 +546,7 @@ export class IntelligentMOSFET extends IntelligentDeviceModelBase {
     if (alpha_on < 1e-6) {
       const gds_cutoff = 1 / Roff;
       return { 
-        gm: IntelligentMOSFET.MIN_CONDUCTANCE, 
+        gm: 0,  // 🔥 FIX: 截止区 Id = Vds/Roff，与 Vgs 无关，gm = 0！
         gds: Math.max(gds_cutoff, IntelligentMOSFET.MIN_CONDUCTANCE),
         gmbs: 0 
       };
@@ -555,36 +559,38 @@ export class IntelligentMOSFET extends IntelligentDeviceModelBase {
     const Vdsat = Vov_safe;
     
     // 各区域电流（与 _computeDCCharacteristics 完全一致）
+    // 🔥 CRITICAL FIX: 使用物理正确的公式，幅值与符号分离
     const Id_cutoff = Vds / Roff;
     const Id_linear_mag = Kp * (Vov_safe * Vds_safe - 0.5 * Vds_safe * Vds_safe);
-    const Id_linear = Id_linear_mag * Vds_sign;
-    const Id_saturation = 0.5 * Kp * Vov_safe * Vov_safe * Vds_sign;
+    const Id_saturation_mag = 0.5 * Kp * Vov_safe * Vov_safe; // 饱和电流幅值（无符号）
     const CLM = 1 + lambda * Vds_safe;
     
     // 平滑因子
     const tanh_sat = Math.tanh((Vds_safe - Vdsat) / SMOOTH_WIDTH);
     const alpha_sat = 0.5 * (1 + tanh_sat);
     
+    // 混合后的电流幅值，最后统一应用方向
+    const Id_on_mag = (Id_linear_mag * (1 - alpha_sat) + Id_saturation_mag * alpha_sat) * CLM;
+    const Id_on = Id_on_mag * Vds_sign;
+    
     // === 计算各区域电流对 Vgs, Vds 的偏导数 ===
+    // 🔥 关键：所有导数基于**幅值**计算，最后在 gm/gds 中统一应用符号
     
     // ∂Id_cutoff/∂Vds = 1/Roff, ∂Id_cutoff/∂Vgs = 0
     const dId_cutoff_dVds = 1 / Roff;
     
-    // ∂Id_linear/∂Vgs = Kp * Vds_safe * sign(Vds) (当 Vov > 0)
-    // ∂Id_linear/∂Vds = Kp * (Vov_safe - Vds_safe) * sign(Vds) (当 Vov > 0)
-    const dId_linear_dVgs = (Vov > 0) ? Kp * Vds_safe * Vds_sign : 0;
-    const dId_linear_dVds = (Vov > 0) ? Kp * (Vov_safe - Vds_safe) * Vds_sign : 0;
+    // 线性区：∂Id_linear_mag/∂Vgs = Kp * Vds_safe (无符号)
+    //         ∂Id_linear_mag/∂Vds_safe = Kp * (Vov_safe - Vds_safe)
+    const dId_linear_mag_dVgs = (Vov > 0) ? Kp * Vds_safe : 0;
+    const dId_linear_mag_dVds_safe = (Vov > 0) ? Kp * (Vov_safe - Vds_safe) : 0;
     
-    // ∂Id_saturation/∂Vgs = Kp * Vov_safe * sign(Vds) (when Vov > 0)
-    // ∂Id_saturation/∂Vds = 0 (饱和区电流不随 Vds 变化)
-    const dId_sat_dVgs = (Vov > 0) ? Kp * Vov_safe * Vds_sign : 0;
-    const dId_sat_dVds = 0;
+    // 饱和区：∂Id_saturation_mag/∂Vgs = Kp * Vov_safe (无符号)
+    //         ∂Id_saturation_mag/∂Vds_safe = 0
+    const dId_sat_mag_dVgs = (Vov > 0) ? Kp * Vov_safe : 0;
+    const dId_sat_mag_dVds_safe = 0;
     
-    // ∂CLM/∂Vds = lambda * sign(Vds)
-    const dCLM_dVds = lambda * Vds_sign;
-    
-    // === 计算混合后的导通区电流 ===
-    const Id_on = (Id_linear * (1 - alpha_sat) + Id_saturation * alpha_sat) * CLM;
+    // CLM: ∂CLM/∂Vds_safe = lambda
+    const dCLM_dVds_safe = lambda;
     
     // === 计算 alpha 的导数 ===
     // ∂α_on/∂Vgs = 0.5 * sech²(Vov/w) * (1/w)
@@ -599,39 +605,48 @@ export class IntelligentMOSFET extends IntelligentDeviceModelBase {
     const d_alpha_sat_dVgs = (Vov > 0) ? -0.5 * sech2_sat / SMOOTH_WIDTH : 0;
     
     // === 链式法则：计算 gm = ∂Id/∂Vgs ===
+    // 🔥 修正：使用正确的幅值导数，最后统一应用符号
     
     // 项 1: 来自 alpha_on 对 Vgs 的导数
     const term1_gm = d_alpha_on_dVgs * (Id_on - Id_cutoff);
     
     // 项 2: 来自 Id_on 对 Vgs 的导数
-    // ∂Id_on/∂Vgs = [(1-α_sat)·∂Id_lin/∂Vgs + α_sat·∂Id_sat/∂Vgs] · CLM
-    //               + [Id_lin·(-∂α_sat/∂Vgs) + Id_sat·∂α_sat/∂Vgs] · CLM
-    const dId_on_dVgs = 
-      ((1 - alpha_sat) * dId_linear_dVgs + alpha_sat * dId_sat_dVgs) * CLM
-      + (Id_saturation - Id_linear) * d_alpha_sat_dVgs * CLM;
+    // ∂Id_on_mag/∂Vgs = [(1-α_sat)·∂Id_lin_mag/∂Vgs + α_sat·∂Id_sat_mag/∂Vgs] · CLM
+    //                   + (Id_sat_mag - Id_lin_mag)·∂α_sat/∂Vgs · CLM
+    const dId_on_mag_dVgs = 
+      ((1 - alpha_sat) * dId_linear_mag_dVgs + alpha_sat * dId_sat_mag_dVgs) * CLM
+      + (Id_saturation_mag - Id_linear_mag) * d_alpha_sat_dVgs * CLM;
     
+    // ∂Id_on/∂Vgs = ∂Id_on_mag/∂Vgs * Vds_sign
+    const dId_on_dVgs = dId_on_mag_dVgs * Vds_sign;
     const term2_gm = alpha_on * dId_on_dVgs;
     
     let gm = term1_gm + term2_gm;
     
     // === 链式法则：计算 gds = ∂Id/∂Vds ===
+    // 🔥 修正：考虑 Vds → |Vds| 的符号处理
     
     // 项 1: 来自 (1-α_on) 的截止区贡献
     const term1_gds = (1 - alpha_on) * dId_cutoff_dVds;
     
     // 项 2: 来自 α_on·Id_on 对 Vds 的导数
-    // ∂(Id_on)/∂Vds 包含三部分：
-    //   a) 区域混合：(1-α_sat)·∂Id_lin/∂Vds + α_sat·∂Id_sat/∂Vds
-    //   b) α_sat 变化：(Id_sat - Id_lin)·∂α_sat/∂Vds
-    //   c) CLM 变化：整体乘以 ∂CLM/∂Vds
-    const Id_mixed = Id_linear * (1 - alpha_sat) + Id_saturation * alpha_sat;
-    const dId_mixed_dVds = 
-      (1 - alpha_sat) * dId_linear_dVds 
-      + alpha_sat * dId_sat_dVds
-      + (Id_saturation - Id_linear) * d_alpha_sat_dVds;
+    // ∂Id_on/∂Vds 包含三部分：
+    //   a) ∂|Vds|/∂Vds = sign(Vds)
+    //   b) Id_on_mag 对 |Vds| 的导数（通过链式法则）
+    //   c) α_sat 对 |Vds| 的导数
+    const Id_mixed_mag = Id_linear_mag * (1 - alpha_sat) + Id_saturation_mag * alpha_sat;
+    const dId_mixed_mag_dVds_safe = 
+      (1 - alpha_sat) * dId_linear_mag_dVds_safe 
+      + alpha_sat * dId_sat_mag_dVds_safe
+      + (Id_saturation_mag - Id_linear_mag) * d_alpha_sat_dVds / Vds_sign; // α_sat对|Vds|的导数
     
-    const dId_on_dVds = dId_mixed_dVds * CLM + Id_mixed * dCLM_dVds;
+    const dId_on_mag_dVds_safe = dId_mixed_mag_dVds_safe * CLM + Id_mixed_mag * dCLM_dVds_safe;
     
+    // ∂Id_on/∂Vds = ∂(Id_on_mag · Vds_sign)/∂Vds
+    //             = ∂Id_on_mag/∂|Vds| · ∂|Vds|/∂Vds · Vds_sign
+    //             = ∂Id_on_mag/∂|Vds| · sign(Vds) · Vds_sign
+    //             = ∂Id_on_mag/∂|Vds| (符号抵消)
+    const dId_on_dVds = dId_on_mag_dVds_safe * Vds_sign * Vds_sign; // sign² = 1
     const term2_gds = alpha_on * dId_on_dVds;
     
     let gds = term1_gds + term2_gds;

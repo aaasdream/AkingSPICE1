@@ -35,6 +35,7 @@ import type {
 } from '../../types/index';
 import { Vector } from '../../math/sparse/vector';
 // import { UltraKLUSolver } from '../../../wasm/klu_solver'; // 動態導入
+import { globalSnapshotManager, type NewtonIterationRecord } from '../diagnostics/failure_snapshot';
 
 /**
  * Generalized-α 積分器參數
@@ -135,6 +136,9 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
   private _rejectedSteps = 0;
   private _totalNewtonIterations = 0;
   private _avgSolveTime = 0;
+  
+  // 🔬 診斷：Newton 迭代歷史記錄（用於失敗快照）
+  private _newtonHistory: NewtonIterationRecord[] = [];
 
   constructor(options: GeneralizedAlphaOptions = {}) {
     // 設置默認選項
@@ -142,7 +146,7 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
       spectralRadius: options.spectralRadius ?? 0.85,
       tolerance: options.tolerance ?? 1e-6,
       maxNewtonIterations: options.maxNewtonIterations ?? 10,
-      newtonTolerance: options.newtonTolerance ?? 1e-10,
+      newtonTolerance: options.newtonTolerance ?? 1e-8,  // 🔧 修復: 從 1e-10 放寬到 1e-8
       stepControl: options.stepControl ?? 'balanced',
       useKLUSolver: options.useKLUSolver ?? true,
       verbose: options.verbose ?? false
@@ -353,7 +357,7 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
         this._acceptedSteps++;
         this._totalNewtonIterations += corrected.iterations;
         
-        this._updateStates(t + dt, dt, corrected);
+        this._updateStates(t + dt, dt, corrected, predicted);
         
         const solveTime = performance.now() - startTime;
         this._avgSolveTime = (this._avgSolveTime * (this._acceptedSteps - 1) + solveTime) / this._acceptedSteps;
@@ -696,6 +700,12 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
   ): Promise<NewtonResult> {
     let v_n1 = predicted.solution.clone(); // Start with the predicted solution x_k
     
+    // 🔥 CRITICAL FIX: Force ground node to exactly 0 at start of Newton
+    const groundIndex = (system as any).getGroundNodeIndex?.();
+    if (groundIndex !== undefined && groundIndex >= 0 && groundIndex < v_n1.size) {
+      v_n1.set(groundIndex, 0.0);
+    }
+    
     // ==================================================================================
     // 🔥 MCAS Layer 1: Standard Newton-Raphson (Quick Path)
     // ==================================================================================
@@ -758,7 +768,36 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
       this._logError(`  ❌ [MCAS] All three layers failed. Convergence impossible at t=${t_n1.toExponential(3)}s`);
       helper.reportConvergenceResult(false, 'PHOENIX', phoenixResult.iterations);
       
-      // 🔥 CRITICAL FIX: Check if solution contains NaN
+      // � FORENSIC SNAPSHOT: 捕獲完整的失敗快照
+      try {
+        system.assemble(phoenixResult.solution, t_n1);
+        const J = system.systemMatrix;
+        const b = system.getRHS();
+        const Jx = J.multiply(phoenixResult.solution) as Vector;
+        const residual = b.minus(Jx);
+        
+        globalSnapshotManager.captureSnapshot(
+          'mcas_all_failed',
+          t_n1 - _dt,  // 當前時間
+          _dt,         // 時間步長
+          phoenixResult.solution,
+          residual,
+          J,
+          this._newtonHistory, // 使用記錄的 Newton 迭代歷史
+          {
+            tolerance: this._options.newtonTolerance,
+            maxIterations: maxPhoenixSteps,
+            failureReason: 'MCAS all three layers failed',
+            failureLayer: 'PHOENIX (Layer 3)',
+            deviceStates: [], // TODO: 從 system 收集設備狀態
+            rhs: b  // 🔥 NEW: Include RHS vector for debugging
+          }
+        );
+      } catch (snapshotError) {
+        this._logError(`  ⚠️ 快照捕獲失敗: ${snapshotError}`);
+      }
+      
+      // �🔥 CRITICAL FIX: Check if solution contains NaN
       // If so, return the predicted solution (which should be valid) to avoid NaN propagation
       const hasNaN = Array.from({length: phoenixResult.solution.size}, (_, i) => phoenixResult.solution.get(i))
         .some(v => !isFinite(v));
@@ -793,6 +832,9 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
     let iterations = 0;
     let finalResidual = Infinity;
     let previousResidual = Infinity;
+    
+    // 🔬 清空並開始新的 Newton 迭代歷史記錄
+    this._newtonHistory = [];
 
     for (iterations = 0; iterations < maxIterations; iterations++) {
       // 1. 核心步驟：呼叫系統的 assemble 方法。
@@ -821,11 +863,36 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
       const Jx = J.multiply(v_n1) as Vector;
       const residual = b.minus(Jx);
       
+      // 🔥 CRITICAL FIX: Exclude ground node from residual norm calculation
+      // Since we force V_ground=0, the ground node equation is satisfied by definition
+      // Including it in the norm can give misleading convergence metrics
+      const groundIndex = (system as any).getGroundNodeIndex?.();
+      if (groundIndex !== undefined && groundIndex >= 0 && groundIndex < residual.size) {
+        residual.set(groundIndex, 0.0); // Zero out ground node residual contribution
+      }
+      
       finalResidual = residual.norm();
+      const solutionNorm = v_n1.norm();
       this._logInfo(`     Newton[${iterations}]: ||Residual|| = ${finalResidual.toExponential(3)}`);
       
-      // 3. 檢查收斂
-      if (finalResidual < this._options.newtonTolerance) {
+      // 🔬 記錄 Newton 迭代歷史
+      this._newtonHistory.push({
+        iteration: iterations,
+        residualNorm: finalResidual,
+        solutionNorm,
+        timeStamp: Date.now()
+      });
+      
+      // 3. 檢查收斂（多重標準）
+      // 🔧 修復: 添加相對殘量和機器精度標準
+      const relativeResidual = finalResidual / (solutionNorm + 1e-10);
+      const absoluteConverged = finalResidual < this._options.newtonTolerance;
+      const relativeConverged = relativeResidual < 1e-6;
+      
+      if (absoluteConverged || relativeConverged) {
+        if (!absoluteConverged && relativeConverged) {
+          this._logInfo(`     ✅ 相對殘量收斂: ||r||/||x|| = ${relativeResidual.toExponential(3)}`);
+        }
         converged = true;
         break;
       }
@@ -843,6 +910,12 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
         const delta = this._solveNewtonStep(J, residual);
         
         const deltaNorm = delta.norm();
+        
+        // 🔬 更新最後一次迭代記錄，加入 deltaNorm
+        if (this._newtonHistory.length > 0) {
+          this._newtonHistory[this._newtonHistory.length - 1]!.deltaNorm = deltaNorm;
+        }
+        
         if (isNaN(deltaNorm)) {
             this._logError(`Newton step (delta) is NaN at iteration ${iterations}! Aborting step.`);
             converged = false;
@@ -861,12 +934,26 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
           // 嘗試更新: v_trial = v_n1 + damping * delta
           const v_trial = (v_n1 as Vector).plus(delta.scale(dampingFactor));
           
+          // 🔥 CRITICAL FIX: Force ground node voltage to exactly 0
+          // Since jacobian.solve() doesn't handle ground node removal,
+          // we must manually enforce V_ground = 0 after each Newton update
+          const groundIndex = (system as any).getGroundNodeIndex?.();
+          if (groundIndex !== undefined && groundIndex >= 0 && groundIndex < v_trial.size) {
+            v_trial.set(groundIndex, 0.0);
+          }
+          
           // 評估新解的殘差
           system.assemble(v_trial, t_n1);
           const J_trial = system.systemMatrix;
           const b_trial = system.getRHS();
           const Jx_trial = J_trial.multiply(v_trial) as Vector;
           const residual_trial = b_trial.minus(Jx_trial);
+          
+          // 🔥 CRITICAL FIX: Exclude ground node from trial residual norm
+          if (groundIndex !== undefined && groundIndex >= 0 && groundIndex < residual_trial.size) {
+            residual_trial.set(groundIndex, 0.0);
+          }
+          
           const trialResidual = residual_trial.norm();
           
           // 檢查是否改進
@@ -893,8 +980,28 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
 
         // 5. 更新解向量為最佳解
         v_n1 = bestSolution;
+        
+        // 🔥 CRITICAL FIX: Force ground node to exactly 0 after accepting best solution
+        const groundIndex = (system as any).getGroundNodeIndex?.();
+        if (groundIndex !== undefined && groundIndex >= 0 && groundIndex < v_n1.size) {
+          v_n1.set(groundIndex, 0.0);
+        }
+        
         previousResidual = finalResidual;
         finalResidual = bestResidual;
+        
+        // 🔧 新增: 檢查更新步長是否已達機器精度（表示收斂）
+        if (this._newtonHistory.length > 0) {
+          const lastDeltaNorm = this._newtonHistory[this._newtonHistory.length - 1]!.deltaNorm;
+          if (lastDeltaNorm !== undefined) {
+            const relativeDelta = lastDeltaNorm / (solutionNorm + 1e-10);
+            if (relativeDelta < 1e-12) {
+              this._logInfo(`     ✅ 更新步長達到機器精度: ||Δx||/||x|| = ${relativeDelta.toExponential(3)}`);
+              converged = true;
+              break;
+            }
+          }
+        }
         
         // 🔧 關鍵修正：強制地節點電壓為 0
         // 由於 delta 可能包含地節點的非零分量（因為 jacobian.solve() 不處理地節點），
@@ -1195,22 +1302,56 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
   }
 
   /**
-   * 更新狀態歷史 (🔥 修正版本)
+   * 🔥 FIX: 更新狀態歷史（使用理論正確的 Generalized-α 公式）
+   * 
+   * 理論背景：
+   *   Generalized-α 方法的狀態更新公式：
+   *   
+   *   1. 加速度更新（從校正後的位移）：
+   *      a_{n+1} = (u_{n+1} - u_pred) / (β * Δt²)
+   *   
+   *   2. 速度更新（使用新加速度）：
+   *      v_{n+1} = v_pred + γ * Δt * a_{n+1}
+   * 
+   *   其中：
+   *     - u_{n+1}: 校正後的解（來自 Newton 迭代）
+   *     - u_pred, v_pred: 預測狀態
+   *     - β, γ: Generalized-α 參數
+   * 
+   * 舊版本問題：
+   *   使用簡化的後向差分：
+   *     v_{n+1} = (u_{n+1} - u_n) / Δt  ❌ 不一致！
+   *     a_{n+1} = (v_{n+1} - v_n) / Δt  ❌ 不一致！
+   * 
+   * 影響：
+   *   - 破壞了 Generalized-α 的高階精度
+   *   - 導致能量不守恆
+   *   - 可能引入數值耗散誤差
    */
-  private _updateStates(t: Time, dt: Time, result: NewtonResult): void {
+  private _updateStates(
+    t: Time, 
+    dt: Time, 
+    result: NewtonResult, 
+    predicted: GeneralizedAlphaState
+  ): void {
     this._previousState = this._currentState;
 
-    // 在這裡計算最終的速度 (一階導數)
-    const newVelocity = (result.solution.minus(this._currentState!.solution)).scale(1 / dt);
+    // 🔥 使用 Generalized-α 理論公式計算加速度
+    // a_{n+1} = (u_{n+1} - u_pred) / (β * Δt²)
+    const dt2Beta = this._beta * dt * dt;
+    const u_diff = result.solution.minus(predicted.solution);
+    const newAcceleration = u_diff.scale(1 / dt2Beta);
     
-    // 加速度的計算 (簡化為速度的變化率)
-    const newAcceleration = (newVelocity.minus(this._currentState!.velocity)).scale(1 / dt);
+    // 🔥 使用 Generalized-α 理論公式計算速度
+    // v_{n+1} = v_pred + γ * Δt * a_{n+1}
+    const dtGamma = this._gamma * dt;
+    const newVelocity = predicted.velocity.plus(newAcceleration.scale(dtGamma));
     
     this._currentState = {
       time: t,
       solution: result.solution,
       derivative: newVelocity,
-      velocity: newVelocity, // 更新為新計算出的速度
+      velocity: newVelocity,
       acceleration: newAcceleration,
       timestep: dt,
       stepStats: {
