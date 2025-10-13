@@ -1,0 +1,36 @@
+{
+  "name": "akingspice-universal-test",
+  "version": "2.1.0",
+  "description": "AkingSPICE 通用测试框架 - 统一的测试机制",
+  "main": "test-runner.js",
+  "type": "module",
+  "scripts": {
+    "test:all": "node test-runner.js",
+    "test:quick": "node test-runner.js --quick",
+    "test:verbose": "node test-runner.js --verbose",
+    "test:report": "node test-runner.js --report test-report.json",
+    "test:architecture": "node test-runner.js --category architecture",
+    "test:components": "node test-runner.js --category components", 
+    "test:algorithms": "node test-runner.js --category algorithms",
+    "test:integration": "node test-runner.js --category integration",
+    "test:performance": "node test-runner.js --category performance",
+    "test:ci": "node test-runner.js --quick --report ci-report.json"
+  },
+  "keywords": [
+    "testing",
+    "spice",
+    "circuit-simulation", 
+    "electronics",
+    "validation",
+    "benchmark"
+  ],
+  "author": "AkingSPICE Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
