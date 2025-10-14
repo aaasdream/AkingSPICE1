@@ -1,23 +1,23 @@
 /**
  * 🚀 AkingSPICE 2.1 通用电路仿真引擎
- * 
+ *
  * 世界领先的通用电路仿真引擎，整合三大革命性技术：
  * - Generalized-α 时域积分器 (L-稳定，可控阻尼)
- * - 统一组件接口 (基础组件 + 智能设备)  
+ * - 统一组件接口 (基础组件 + 智能设备)
  * - Ultra KLU WASM 求解器 (极致性能)
- * 
+ *
  * 🏆 设计目标：
  * - 支持任意电路拓扑仿真
  * - 大规模电路高效处理 (1000+ 节点)
  * - 实时仿真能力 (μs 级时间步长)
  * - 工业级数值稳定性 (>99% 收敛率)
  * - 自适应仿真策略 (智能优化)
- * 
+ *
  * 📚 技术架构：
  *   Event-Driven MNA + Generalized-α + 统一组件接口
  *   多时间尺度处理 + 自适应步长控制
  *   并行化友好设计 + 内存优化
- * 
+ *
  * 🎯 应用领域：
  *   开关电源设计验证
  *   电力电子系统分析
@@ -26,30 +26,29 @@
  */
 
 // 导入语句部分，添加 VoltageSource
-import type { 
-  Time,
-  ISparseMatrix,
-  IVector,
+import { SparseMatrix } from '../../math/sparse/matrix';
+import { Vector } from '../../math/sparse/vector';
+import type {
+  GminEnhancedConfig,
+  IConvergenceHelper,
   IEvent,
   IMNASystem,
-  IConvergenceHelper,
+  ISparseMatrix,
+  IVector,
   NewtonResult,
-  GminEnhancedConfig
+  Time
 } from '../../types/index';
-import { DEFAULT_GMIN_CONFIG } from '../../types/index';
-import { Vector } from '../../math/sparse/vector';
-import { SparseMatrix } from '../../math/sparse/matrix';
 import { GeneralizedAlphaIntegrator } from '../integrator/generalized_alpha';
 import { ExtraVariableIndexManager, ExtraVariableType } from '../mna/extra_variable_manager';
 // CHANGED: 导入统一的接口和新的类型守卫
-import { ComponentInterface, AssemblyContext } from '../interfaces/component';
-import type { 
-  DeviceState 
+import { GeneralizedHomotopy, type IHomotopySystem } from '../../math/numerical/homotopy';
+import type {
+  DeviceState
 } from '../devices/intelligent_device_model';
 import { isIntelligentDeviceModel } from '../devices/intelligent_device_model';
-import { EventDetector } from '../events/detector';
-import { GeneralizedHomotopy, type IHomotopySystem } from '../../math/numerical/homotopy';
 import { globalSnapshotManager } from '../diagnostics/failure_snapshot';
+import { EventDetector } from '../events/detector';
+import { AssemblyContext, ComponentInterface } from '../interfaces/component';
 
 /**
  * 仿真状态枚举
@@ -74,26 +73,26 @@ export interface SimulationConfig {
   readonly initialTimeStep: number; // 初始时间步长
   readonly minTimeStep: number;    // 最小时间步长
   readonly maxTimeStep: number;    // 最大时间步长
-  
+
   // 收敛控制
   readonly voltageToleranceAbs: number;  // 电压绝对容差
   readonly voltageToleranceRel: number;  // 电压相对容差
   readonly currentToleranceAbs: number;  // 电流绝对容差
   readonly currentToleranceRel: number;  // 电流相对容差
   readonly maxNewtonIterations: number;  // 最大 Newton 迭代次数
-  
+
   // 积分器设置
   readonly alphaf: number;         // Generalized-α 参数
   readonly alpham: number;         // Generalized-α 参数
   readonly beta: number;           // Newmark 参数
   readonly gamma: number;          // Newmark 参数
-  
+
   // 性能优化
   readonly enableAdaptiveTimeStep: boolean;  // 自适应时间步长
   readonly enablePredictiveAnalysis: boolean; // 预测性分析
   readonly enableParallelization: boolean;   // 并行化
   readonly maxMemoryUsage: number;           // 最大内存使用 (MB)
-  
+
   // 调试选项
   readonly verboseLogging: boolean;          // 详细日志
   readonly saveIntermediateResults: boolean; // 保存中间结果
@@ -158,7 +157,7 @@ interface ScalableSource {
 
 /**
  * 🚀 电路仿真引擎核心类
- * 
+ *
  * 整合所有革命性技术的统一仿真平台
  * 提供工业级的大规模电路仿真能力
  */
@@ -170,38 +169,48 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
   // CHANGED: 设备容器现在接受任何 ComponentInterface
   private readonly _devices: Map<string, ComponentInterface> = new Map();
   private readonly _nodeMapping: Map<string, number> = new Map();
-  
+
   // 🆕 额外变数管理器
   private _extraVariableManager: ExtraVariableIndexManager | null = null;
-  
+
   // 🔥 MCAS 状态机
   private _solverState: 'EASY' | 'NORMAL' | 'HARD' = 'NORMAL';
   private _consecutiveEasySteps: number = 0;
   private _consecutiveHardSteps: number = 0;
   private readonly _easyThreshold: number = 10;   // 连续 10 步简单则进入 EASY
   private readonly _hardThreshold: number = 3;    // 连续 3 步困难则进入 HARD
-  
+
+  // 🔥 瞬态分析 Gmin Stepping 策略 (用于 DC→瞬态过渡的数值稳定性)
+  private _transientGminSteps: number = 0;        // 剩余需要使用 gmin 的时间步数
+  private _transientGminCurrent: number = 0;      // 当前 gmin 值 (逐步衰减到0)
+
   // 仿真状态
   private _state: SimulationState = SimulationState.IDLE;
   private _config: SimulationConfig;
   private _currentTime: Time = 0;
   private _currentTimeStep: number = 1e-6;
   private _stepCount: number = 0;
-  
+
   // System矩阵和向量
   private _systemMatrix: ISparseMatrix;
   private _rhsVector: IVector;
   private _solutionVector: IVector;
   private _previousSolutionVector: IVector;  // 🔧 保存上一个时间步的解
 
+  // 🚀 積分器係數 (用於解耦無源元件)
+  private _G_coeff: number | undefined = undefined;  // 電導係數 (電容用)
+  private _I_coeff: number | undefined = undefined;  // 歷史電流係數 (電容用)
+  private _R_coeff: number | undefined = undefined;  // 電阻係數 (電感用)
+  private _V_coeff: number | undefined = undefined;  // 歷史電壓係數 (電感用)
+
   // 性能监控
   private _performanceMetrics: PerformanceMetrics;
   private _startTime: number = 0;
   private _events: SimulationEvent[] = [];
-  
+
   // 波形数据存储
   private _waveformData: WaveformData;
-  
+
   // 内存管理
   private _memoryUsage: number = 0;
   private readonly _maxNodes: number;
@@ -220,9 +229,9 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       currentToleranceRel: 1e-9,        // 1ppb 相对容差
       maxNewtonIterations: 50,          // 最大 Newton 迭代
       alphaf: 0.4,                      // Generalized-α 参数 (数值阻尼)
-      alpham: 0.2,                      // Generalized-α 参数 
+      alpham: 0.2,                      // Generalized-α 参数
       beta: 0.36,                       // Newmark β
-      gamma: 0.7,                       // Newmark γ  
+      gamma: 0.7,                       // Newmark γ
       enableAdaptiveTimeStep: true,     // 启用自适应步长
       enablePredictiveAnalysis: true,   // 启用预测分析
       enableParallelization: false,     // 暂不启用并行化
@@ -232,14 +241,14 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       enablePerformanceMonitoring: true, // 启用性能监控
       ...config
     };
-    
+
     // ✅ 允許用戶自行決定最小時間步長
     // 對於快速開關電路（如 Buck 轉換器），可能需要 ps 級別的時間步長
     // 如果數值不穩定，用戶應該增大 minTimeStep 而非由引擎強制限制
     if (this._config.minTimeStep < 1e-12) {
       console.warn(`⚠️ minTimeStep ${this._config.minTimeStep} 極小 (< 1ps)，可能影響性能。建議 ≥ 1e-12s`);
     }
-    
+
     this._eventDetector = new EventDetector({
       minTimestep: this._config.minTimeStep,
     });
@@ -251,17 +260,17 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       maxNewtonIterations: this._config.maxNewtonIterations,
       verbose: this._config.verboseLogging
     });
-    
+
     // 估算最大节点数 (基于内存限制)
     this._maxNodes = Math.floor(this._config.maxMemoryUsage * 1024 * 1024 / (8 * 1000)); // 估算公式
-    
+
     // 初始化矩阵和向量 (使用估算大小)
     const estimatedSize = Math.min(this._maxNodes, 1000); // 默认最大1000节点
     this._systemMatrix = new SparseMatrix(estimatedSize, estimatedSize);
     this._rhsVector = new Vector(estimatedSize);
     this._solutionVector = new Vector(estimatedSize);
     this._previousSolutionVector = new Vector(estimatedSize);  // 🔧 初始化历史解向量
-    
+
     // 初始化性能指标
     this._performanceMetrics = {
       totalSimulationTime: 0,
@@ -274,29 +283,29 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       failedSteps: 0,
       adaptiveStepChanges: 0
     };
-    
+
     // 初始化波形数据
     this._waveformData = {
       timePoints: [],
       nodeVoltages: new Map(),
-      deviceCurrents: new Map(), 
+      deviceCurrents: new Map(),
       deviceStates: new Map()
     };
   }
 
   /**
    * 🔧 添加组件到电路 (统一接口)
-   * 
+   *
    * CHANGED: 现在接受任何 ComponentInterface，实现真正的统一架构
    */
   addDevice(device: ComponentInterface): void {
     if (this._state !== SimulationState.IDLE) {
       throw new Error('Cannot add devices while simulation is running');
     }
-    
+
     // 使用统一的 name 属性作为键
     this._devices.set(device.name, device);
-    
+
     // 统一处理节点映射 - 支持字符串和数字节点
     device.nodes.forEach((nodeId) => {
       const nodeName = nodeId.toString();
@@ -305,13 +314,13 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         this._nodeMapping.set(nodeName, globalNodeId);
       }
     });
-    
+
     this._logEvent('DEVICE_ADDED', device.name, `Added ${device.type} device`);
   }
 
   /**
    * 🔧 批量添加设备 (便于复杂电路创建)
-   * 
+   *
    * CHANGED: 现在接受任何 ComponentInterface 数组
    */
   addDevices(devices: ComponentInterface[]): void {
@@ -327,19 +336,19 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
 
   /**
    * ⚙️ 初始化仿真系统 (重构版本)
-   * 
+   *
    * 整合了额外变数管理器，现在支持电感、电压源和变压器
    */
   private async _initializeSimulation(): Promise<void> {
     this._logEvent('INFO', undefined, '� Initializing simulation system...');
-    
+
     try {
       // Note: Don't set state here, let runSimulation() manage it
       // this._state = SimulationState.INITIALIZING;
       // const initStartTime = performance.now();
-      
+
       this._validateCircuit();
-  
+
       // 1. 預掃描以確定系統總大小
       const baseNodeCount = this._nodeMapping.size;
       let extraVarsCount = 0;
@@ -348,45 +357,45 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
           extraVarsCount += (device as any).getExtraVariableCount();
         }
       }
-  
+
       // 2. 初始化管理器
       this._extraVariableManager = new ExtraVariableIndexManager(baseNodeCount);
       const totalSystemSize = baseNodeCount + extraVarsCount;
-  
+
       // 3. 創建正確大小的矩陣和向量
       this._systemMatrix = new SparseMatrix(totalSystemSize, totalSystemSize);
       this._rhsVector = new Vector(totalSystemSize);
       this._solutionVector = new Vector(totalSystemSize);
       this._previousSolutionVector = new Vector(totalSystemSize);  // 🔧 重新初始化历史解向量
-      
+
       // 4. 第二次掃描，為元件分配索引
       for (const device of this._devices.values()) {
-          if ('getExtraVariableCount' in device && typeof (device as any).getExtraVariableCount === 'function') {
-              if (device.type === 'V' || device.type === 'L') {
-                  const index = this._extraVariableManager.allocateIndex(
-                      device.type === 'V' ? ExtraVariableType.VOLTAGE_SOURCE_CURRENT : ExtraVariableType.INDUCTOR_CURRENT,
-                      device.name
-                  );
-                  if ('setCurrentIndex' in device) (device as any).setCurrentIndex(index);
-              } else if (device.type === 'K') {
-                  const pIdx = this._extraVariableManager.allocateIndex(ExtraVariableType.TRANSFORMER_PRIMARY_CURRENT, device.name);
-                  const sIdx = this._extraVariableManager.allocateIndex(ExtraVariableType.TRANSFORMER_SECONDARY_CURRENT, device.name);
-                  if ('setCurrentIndices' in device) (device as any).setCurrentIndices(pIdx, sIdx);
-              }
+        if ('getExtraVariableCount' in device && typeof (device as any).getExtraVariableCount === 'function') {
+          if (device.type === 'V' || device.type === 'L') {
+            const index = this._extraVariableManager.allocateIndex(
+              device.type === 'V' ? ExtraVariableType.VOLTAGE_SOURCE_CURRENT : ExtraVariableType.INDUCTOR_CURRENT,
+              device.name
+            );
+            if ('setCurrentIndex' in device) (device as any).setCurrentIndex(index);
+          } else if (device.type === 'K') {
+            const pIdx = this._extraVariableManager.allocateIndex(ExtraVariableType.TRANSFORMER_PRIMARY_CURRENT, device.name);
+            const sIdx = this._extraVariableManager.allocateIndex(ExtraVariableType.TRANSFORMER_SECONDARY_CURRENT, device.name);
+            if ('setCurrentIndices' in device) (device as any).setCurrentIndices(pIdx, sIdx);
           }
+        }
       }
-  
-            this._logEvent('INIT', undefined, `System size: ${totalSystemSize} (${baseNodeCount} nodes + ${extraVarsCount} extra vars).`);
-  
+
+      this._logEvent('INIT', undefined, `System size: ${totalSystemSize} (${baseNodeCount} nodes + ${extraVarsCount} extra vars).`);
+
       // 关键修复：在开始 DC 分析之前，确保解向量是一个干净的全零向量
       this._solutionVector.fill(0);
 
       // 5. 計算 DC 工作點 (所有仿真類型都需要)
       await this._performDCAnalysis();
-      
+
       // 🔧 初始化历史解向量为 DC 工作点 (瞬态分析的初始条件)
       this._previousSolutionVector = this._solutionVector.clone();
-  
+
       // DC-only 分析 (endTime = 0) 到此結束
       if (this._config.endTime === 0) {
         // 🔧 關鍵修復：DC 分析後也需要保存波形數據
@@ -394,56 +403,34 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         this._state = SimulationState.COMPLETED;
         return;
       }
-  
-      // 🎯 瞬态分析：使用零初始条件 (UIC)
-      // 对于电容和电感，将其节点电压重置为 0
-      // 这模拟了 SPICE 的 .TRAN UIC 行为
-      for (const device of this._devices.values()) {
-        if (device.type === 'C' || device.type === 'L') {
-          // 对于电容/电感，将其节点设为 0（保持电压源节点不变）
-          const nodes = device.nodes;
-          for (const nodeName of nodes) {
-            const nodeNameStr = nodeName.toString();
-            if (nodeNameStr !== '0') {  // 跳过地节点
-              const nodeIndex = this._nodeMapping.get(nodeNameStr);
-              if (nodeIndex !== undefined && nodeIndex >= 0 && nodeIndex < this._nodeMapping.size) {
-                // 只重置电路节点，不重置额外变量
-                this._solutionVector.set(nodeIndex, 0);
-                this._previousSolutionVector.set(nodeIndex, 0);
-              }
-            }
-          }
-          // 🧠 關鍵修正：對所有電感器的支路電流（extra variable）初始化為 0
-          if (device.type === 'L' && typeof (device as any).hasCurrentIndexSet === 'function' && typeof (device as any).setCurrentIndex === 'function') {
-            // 取得支路電流索引
-            const currentIndex = (device as any)._currentIndex;
-            if (currentIndex !== undefined && currentIndex >= 0 && currentIndex < this._solutionVector.size) {
-              this._solutionVector.set(currentIndex, 0);
-              this._previousSolutionVector.set(currentIndex, 0);
-            }
-          }
-        }
-      }
-      
-      this._logEvent('INIT', undefined, '⚡ Applied zero initial conditions (UIC) for capacitors and inductors.');
-  
-      // 6. 用零初始狀態來啟動積分器
+
+      // 🎯 瞬态分析：UIC (零初始條件) 將在元件層級處理
+      // 移除舊的有害邏輯 - DC 解應該保持完整傳遞給瞬態分析
+      // 電容和電感會在自己的 assemble() 方法中檢查 currentTime 來實現 UIC
+
+      this._logEvent('INIT', undefined, '✅ Transient analysis initialized with consistent DC operating point.');
+
+      // 6. 用完整的 DC 工作點解來啟動積分器
       await this._integrator.restart({
-          time: this._config.startTime,
-          solution: this._solutionVector as Vector,
-          derivative: Vector.zeros(this._solutionVector.size) // 假設 t=0 時導數為 0
+        time: this._config.startTime,
+        solution: this._solutionVector as Vector,
+        derivative: Vector.zeros(this._solutionVector.size)
       });
-      console.log('🔄 Generalized-α integrator restarted with UIC.');
+      console.log('🔄 Generalized-α integrator restarted with consistent DC operating point.');
 
       // 6. 初始化波形数据存储
       this._initializeWaveformStorage();
-      
+
       // 7. 设置初始时间和步长
       this._currentTime = this._config.startTime;
       this._currentTimeStep = this._config.initialTimeStep;
       this._stepCount = 0;
-        
-    } catch (error) {
+
+      // 🔥 关键修复：为瞬态分析启用 Gmin Stepping 策略
+      // 在初始几个时间步使用渐进的 gmin 来改善矩阵条件数
+      this._transientGminSteps = 3;  // 前3步使用 gmin
+      this._transientGminCurrent = 1e-6;  // 初始 gmin = 1µS
+      this._logEvent('INIT', undefined, `🛡️ Transient Gmin Stepping enabled: ${this._transientGminSteps} steps, initial gmin=${this._transientGminCurrent.toExponential(2)}S`);    } catch (error) {
       this._state = SimulationState.FAILED;
       // 增加更详细的错误日志
       console.error('Detailed error in _initializeSimulation:', error);
@@ -458,18 +445,28 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
   async runSimulation(): Promise<SimulationResult> {
     this._startTime = performance.now();
     this._state = SimulationState.RUNNING;
-    
+
     try {
       // 1. 初始化仿真
       await this._initializeSimulation();
-      
+
       this._logEvent('INFO', undefined, '✅ Simulation initialization complete.');
+
+      // 🚀 关键修复：DC→瞬态转换时的平滑步长启动策略
+      // 如果初始步长太大，会导致伴随模型产生剧烈跳变 (R_eq = L/dt)
+      // 策略：第一步使用极小步长，让积分器自然增长到目标步长
+      if (this._stepCount === 0 && this._currentTimeStep > 1e-10) {
+        const SMOOTH_START_DT = Math.max(this._config.minTimeStep, 1e-11); // 10ps
+        this._logEvent('INIT', undefined, 
+          `🛡️ Smooth start: reducing first step from ${this._currentTimeStep.toExponential(2)}s to ${SMOOTH_START_DT.toExponential(2)}s (prevent companion model discontinuity)`);
+        this._currentTimeStep = SMOOTH_START_DT;
+      }
 
       // 2. 主仿真循环
       while (this._currentTime < this._config.endTime && this._state === SimulationState.RUNNING) {
         try {
           const stepSuccess = await this._performTimeStep();
-        
+
           if (!stepSuccess) {
             // 步长减半重试
             if (this._currentTimeStep > this._config.minTimeStep * 2) {
@@ -480,22 +477,22 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
               // 无法继续，仿真失败
               this._state = SimulationState.FAILED;
               this._logEvent('FATAL', undefined, 'Time step fell below minimum and could not recover.');
-              
+
               // 🔬 捕獲失敗快照
               console.log(`🔬 準備捕獲快照: t=${this._currentTime}, enabled=${globalSnapshotManager.isEnabled()}`);
               if (globalSnapshotManager.isEnabled()) {
                 try {
                   console.log('🔬 開始捕獲快照...');
-                  
+
                   // 使用系統矩陣和RHS (如果可用)
                   const systemSize = this._solutionVector.size;
                   const matrix = this._systemMatrix || new SparseMatrix(systemSize, systemSize);
                   const rhsVector = this._rhsVector || new Vector(systemSize);
-                  
+
                   // 計算 residual = b - J*x
                   const Jx = matrix.multiply(this._solutionVector) as Vector;
                   const residual = rhsVector.minus(Jx);
-                  
+
                   // 捕獲快照
                   const snapshotFile = globalSnapshotManager.captureSnapshot(
                     'timestep_minimum',
@@ -518,38 +515,38 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
                   console.error('快照捕獲失敗:', snapshotError);
                 }
               }
-              
+
               break;
             }
           }
         } catch (stepError) {
-            console.error(`💥 Error within simulation loop at t=${this._currentTime}:`, stepError);
-            throw stepError; // Re-throw to be caught by the main catch block
+          console.error(`💥 Error within simulation loop at t=${this._currentTime}:`, stepError);
+          throw stepError; // Re-throw to be caught by the main catch block
         }
-        
+
         // 3. 保存波形数据
         if (this._config.saveIntermediateResults) {
           this._saveWaveformPoint();
         }
-        
+
         // 5. 内存使用检查
         if (this._memoryUsage > this._config.maxMemoryUsage * 1024 * 1024) {
           this._logEvent('MEMORY_WARNING', undefined, 'Memory usage exceeded limit');
           break;
         }
-        
+
         this._stepCount++;
       }
-      
+
       // Mark simulation as completed if we reached the end time normally
       if (this._currentTime >= this._config.endTime && this._state === SimulationState.RUNNING) {
         this._state = SimulationState.COMPLETED;
         this._logEvent('INFO', undefined, '✅ Simulation completed successfully.');
       }
-      
+
       // 3. 生成最终结果
       return this._generateFinalResult();
-      
+
     } catch (error) {
       this._state = SimulationState.FAILED;
       // 增加更详细的错误日志
@@ -616,47 +613,74 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
   // --- 實現 IMNASystem 所需的屬性 ---
 
   get size(): number {
-      return this._systemMatrix.rows;
+    return this._systemMatrix.rows;
   }
 
   get systemMatrix(): ISparseMatrix {
-      return this._systemMatrix;
+    return this._systemMatrix;
   }
 
   getRHS(): IVector {
-      return this._rhsVector;
+    return this._rhsVector;
   }
 
   getGroundNodeIndex(): number | undefined {
-      return this._nodeMapping.get('0');
+    return this._nodeMapping.get('0');
   }
 
   // --- 實現 IMNASystem 所需的核心方法 ---
-  
+
   /**
    * 這個方法是積分器和引擎之間的橋樑。
    * 積分器在每一次內部 Newton 迭代時都會呼叫它。
    */
+  /**
+   * 🚀 設置積分器係數 (供 Generalized-α 積分器調用)
+   *
+   * 這些係數由積分器根據其內部公式計算，並在每個時間步開始時設置
+   *
+   * @param G_coeff 電導係數 (電容用)
+   * @param I_coeff 歷史電流係數 (電容用)
+   * @param R_coeff 電阻係數 (電感用)
+   * @param V_coeff 歷史電壓係數 (電感用)
+   */
+  public setIntegrationCoefficients(
+    G_coeff?: number,
+    I_coeff?: number,
+    R_coeff?: number,
+    V_coeff?: number
+  ): void {
+    this._G_coeff = G_coeff;
+    this._I_coeff = I_coeff;
+    this._R_coeff = R_coeff;
+    this._V_coeff = V_coeff;
+  }
+
   public assemble(solution: IVector, time: Time): void {
-      // 🔥 CRITICAL CHECK: Detect NaN in solution vector before assembly
-      for (let i = 0; i < solution.size; i++) {
-        const val = solution.get(i);
-        if (!isFinite(val)) {
-          console.error(`🚨 [ASSEMBLE] NaN/Inf detected in solution vector at index ${i}, value=${val}, time=${time}`);
-          throw new Error(`Solution vector contains NaN/Inf at index ${i}. Cannot assemble system.`);
-        }
+    // 🔥 CRITICAL CHECK: Detect NaN in solution vector before assembly
+    for (let i = 0; i < solution.size; i++) {
+      const val = solution.get(i);
+      if (!isFinite(val)) {
+        console.error(`🚨 [ASSEMBLE] NaN/Inf detected in solution vector at index ${i}, value=${val}, time=${time}`);
+        throw new Error(`Solution vector contains NaN/Inf at index ${i}. Cannot assemble system.`);
       }
-      
-      // 更新當前解，以便 _assembleSystem 使用
-      this._solutionVector = solution;
-      // 使用新的解和時間來重新組裝
-      // 注意：這裡不能用 await，因為 IMNASystem 介面是同步的
-      // 因此 _assembleSystem 也需要改成同步
-      // 🎯 瞬態分析時使用 this._currentTimeStep，DC 分析時使用 0
-      // 🔥 CRITICAL FIX: Use gmin=1e-9 (SPICE default) to ensure all nodes have diagonal elements
-      //    This prevents matrix singularity for nodes connected only to voltage sources
-      //    Previous value 1e-12 was too small and caused numerical instability (condition number issues)
-      this._assembleSystem(time, 1e-9, this._currentTimeStep); 
+    }
+
+    // 更新當前解，以便 _assembleSystem 使用
+    this._solutionVector = solution;
+
+    // 🔥 瞬态分析初始阶段 Gmin Stepping 策略
+    // 在 DC→瞬态过渡的前几步使用渐进的 gmin 来改善雅可比矩阵条件数
+    let effectiveGmin = 1e-9; // 默认的 SPICE gmin (始终保持对角线元素非零)
+
+    if (this._transientGminSteps > 0 && time > 0) {
+      // 在瞬态分析初期，使用更大的 gmin 并逐步衰减
+      effectiveGmin = this._transientGminCurrent;
+      this._logEvent('TRANSIENT_GMIN', undefined, `Transient gmin=${effectiveGmin.toExponential(2)}S (${this._transientGminSteps} steps remaining)`);
+    }
+
+    // 🎯 瞬態分析時使用 this._currentTimeStep，DC 分析時使用 0
+    this._assembleSystem(time, effectiveGmin, this._currentTimeStep);
   }
 
   // === 私有方法实现 ===
@@ -665,11 +689,11 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     if (this._devices.size === 0) {
       throw new Error('No devices found in circuit');
     }
-    
+
     if (this._nodeMapping.size > this._maxNodes) {
       throw new Error(`Too many nodes: ${this._nodeMapping.size} > ${this._maxNodes}`);
     }
-    
+
     // 验证节点连通性 (简化检查)
     const connectedNodes = new Set<number>();
     this._devices.forEach(device => {
@@ -680,7 +704,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         }
       });
     });
-    
+
     if (connectedNodes.size !== this._nodeMapping.size) {
       console.warn('Warning: Some nodes may not be connected');
     }
@@ -696,7 +720,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     // 关键修复：在整个 DC 分析开始时，提供一个初始的非零猜测。
     // 这可以避免在 v=0 时的数值奇点（例如，在半导体器件模型中）。
     this._solutionVector.fill(1e-6);
-    
+
     // 步骤 1: Gmin Stepping (作为首选的鲁棒方法)
     console.log('🔄 优先尝试 Gmin Stepping...');
     let dcResult = await this._gminSteppingHomotopy();
@@ -708,14 +732,14 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     // 步骤 2: 源步进 (作为备用方法)
     console.log('🔄 Gmin Stepping 失败，尝试源步进...');
     // 在尝试源步进之前，重置解向量，因为 Gmin 可能已将其带入一个不好的区域
-    this._solutionVector.fill(1e-6); 
+    this._solutionVector.fill(1e-6);
     dcResult = await this._sourceSteppingHomotopy();
     console.log(`📊 源步进結果: ${dcResult ? '成功' : '失敗'}`);
     if (dcResult) {
       this._logEvent('dc_converged', undefined, '源步进收敛');
       return;
     }
-    
+
     // 步骤 3: 标准 Newton-Raphson (最后的尝试)
     console.log('🔄 源步进失败，最后尝试标准 Newton...');
     this._solutionVector.fill(1e-6); // 再次重置
@@ -725,7 +749,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       this._logEvent('dc_converged', undefined, '標準 Newton 收斂');
       return;
     }
-    
+
     // 步骤 4: 廣義同倫延拓 (終極防線)
     console.log('🧭 標準方法均失敗，啟動廣義同倫延拓求解器...');
     this._solutionVector.fill(1e-6); // 重置為初始猜測
@@ -734,7 +758,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       this._logEvent('dc_converged', undefined, '廣義同倫延拓收斂');
       return;
     }
-    
+
     // 最终失败
     this._logEvent('dc_failed', undefined, '所有 DC 方法失敗 (包含同倫延拓)');
     throw new Error('DC 工作點分析失敗');
@@ -751,7 +775,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     let converged = false;
 
     for (const factor of stepFactors) {
-      this._logEvent('DC_SOURCE_STEP', undefined, `Setting source factor to ${(factor * 100).toFixed(0)}%`);      
+      this._logEvent('DC_SOURCE_STEP', undefined, `Setting source factor to ${(factor * 100).toFixed(0)}%`);
       // 🧠 智能初始猜测：当所有源为0时，最佳猜测就是0向量
       if (factor === 0.0) {
         this._solutionVector.fill(0);
@@ -776,7 +800,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     for (const source of sources) {
       source.restoreSource();
     }
-    
+
     // 🔍 關鍵修復：驗證最終解是否真正有效（物理合理性檢查）
     if (converged) {
       const isValid = this._isSolutionPhysicallyPlausible();
@@ -785,24 +809,24 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         return false;
       }
     }
-    
+
     return converged;
   }
 
   /**
    * 🔍 檢查 DC 解是否物理合理
-   * 
+   *
    * 這是防止虛假收斂的關鍵檢查。即使數值上 ||F(x)|| < tol，
    * 解也可能陷入平凡解（例如全零）而不是真實的物理工作點。
-   * 
+   *
    * @returns true 如果解看起來合理，false 如果可能是虛假收斂
    */
   private _isSolutionPhysicallyPlausible(): boolean {
     const solutionVector = this._solutionVector as Vector;
     const baseNodeCount = this._nodeMapping.size;
-    
+
     console.log(`   >>> PHYSICAL_CHECK: solution_size=${solutionVector.size}, nodes=${baseNodeCount}`);
-    
+
     // 檢查 1：是否有電壓源？
     const voltageSources = Array.from(this._devices.values()).filter(d => {
       if (d.type !== 'V') return false;
@@ -816,35 +840,35 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       }
       return false;
     });
-    
+
     console.log(`   >>> PHYSICAL_CHECK: voltage_sources_found=${voltageSources.length}`);
-    
+
     if (voltageSources.length === 0) {
       // 沒有電壓源，全零解是合理的
       console.log('   >>> PHYSICAL_CHECK: No voltage sources, zero solution is valid');
       return true;
     }
-    
+
     // 檢查 2：統計節點電壓分佈
     let zeroCount = 0;
     let nonZeroCount = 0;
     let maxVoltage = 0;
     let voltageSum = 0;
-    
+
     for (let i = 0; i < Math.min(baseNodeCount, solutionVector.size); i++) {
       const voltage = Math.abs(solutionVector.get(i));
       maxVoltage = Math.max(maxVoltage, voltage);
       voltageSum += voltage;
-      
+
       if (voltage < 1e-3) {  // < 1mV 視為零
         zeroCount++;
       } else {
         nonZeroCount++;
       }
     }
-    
+
     const avgVoltage = voltageSum / baseNodeCount;
-    
+
     // 檢查 3：如果有非零電壓源，但幾乎所有節點都是零，這是虛假收斂
     console.log(`   >>> PHYSICAL_CHECK: zero_count=${zeroCount}/${baseNodeCount}, max_V=${maxVoltage.toFixed(6)}V`);
     if (zeroCount > baseNodeCount * 0.9 && maxVoltage < 0.01) {
@@ -852,14 +876,14 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       console.log(`   >>> Max voltage: ${maxVoltage.toExponential(2)}V, Average: ${avgVoltage.toExponential(2)}V`);
       return false;
     }
-    
+
     // 檢查 4：對於有電壓源的電路，至少應該有一些節點有明顯電壓
     const minExpectedNonZeroNodes = Math.max(1, Math.floor(voltageSources.length * 0.5));
     if (nonZeroCount < minExpectedNonZeroNodes) {
       console.log(`   ❌ 物理檢查失敗：只有 ${nonZeroCount} 個非零節點，期望至少 ${minExpectedNonZeroNodes} 個`);
       return false;
     }
-    
+
     // 檢查 5：檢查是否有明顯的數值異常（NaN, Inf）
     for (let i = 0; i < solutionVector.size; i++) {
       const value = solutionVector.get(i);
@@ -868,7 +892,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         return false;
       }
     }
-    
+
     console.log(`   >>> PHYSICAL_CHECK_RESULT: PASS (non_zero=${nonZeroCount}, max_V=${maxVoltage.toFixed(3)}V)`);
     return true;
   }
@@ -880,7 +904,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
 
   /**
    * 实现 Gmin 增强牛顿法（适配瞬态单步求解）
-   * 
+   *
    * 与完整的 _gminSteppingHomotopy 不同，这个方法：
    * - 使用固定的小 Gmin（不做完整 Stepping）
    * - 从给定的初始猜测开始（而不是从零开始）
@@ -891,57 +915,57 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     time: Time,
     config: GminEnhancedConfig
   ): Promise<NewtonResult> {
-    this._logEvent('convergence_helper', undefined, 
+    this._logEvent('convergence_helper', undefined,
       `[MCAS-L2] Trying Gmin-Enhanced Newton (gmin=${config.initialGmin.toExponential(2)})`);
-    
+
     let solution = initialGuess.clone();
     let gmin = config.initialGmin;
     let bestResult: NewtonResult | null = null;
     let attempts = 0;
     const maxAttempts = config.allowGminIncrease ? 3 : 1;
-    
+
     while (attempts < maxAttempts) {
       attempts++;
-      
+
       let converged = false;
       let finalResidual = Infinity;
-      
+
       for (let iter = 0; iter < config.maxIterations; iter++) {
         // 🔥 CRITICAL: Check for NaN BEFORE assembly
-        const hasNaN = Array.from({length: solution.size}, (_, i) => solution.get(i)).some(v => !isFinite(v));
+        const hasNaN = Array.from({ length: solution.size }, (_, i) => solution.get(i)).some(v => !isFinite(v));
         if (hasNaN) {
           this._logEvent('convergence_helper', undefined,
             `[MCAS-L2] NaN detected in solution at iter ${iter}, aborting Gmin-NR`);
           break;
         }
-        
+
         // 组装系统（这会更新 _systemMatrix 和 _rhsVector）
         this.assemble(solution, time);
-        
+
         const J = this._systemMatrix.clone();
         const b = this._rhsVector.clone();
-        
+
         // 🔥 关键：增强对角占优性
         for (let i = 0; i < solution.size; i++) {
           (J as SparseMatrix).add(i, i, gmin);
         }
-        
+
         // 计算残差
         const Jx = J.multiply(solution) as Vector;
         const residual = (b as Vector).minus(Jx) as Vector;
         finalResidual = residual.norm();
-        
+
         if (finalResidual < config.tolerance) {
           converged = true;
           this._logEvent('convergence_helper', undefined,
             `[MCAS-L2] ✅ Gmin-NR converged in ${iter} iterations, residual=${finalResidual.toExponential(3)}`);
           break;
         }
-        
+
         // 求解线性系统 J * delta = residual
         try {
           const delta = await this._solveLinearSystem(J, residual);
-          
+
           // 简单的线搜索（阻尼）
           let alpha = 1.0;
           for (let ls = 0; ls < 3; ls++) {
@@ -951,7 +975,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
             const bTrial = this._rhsVector;
             const residualTrial = (bTrial as Vector).minus(JTrial.multiply(solutionTrial) as Vector) as Vector;
             const residualTrialNorm = residualTrial.norm();
-            
+
             if (residualTrialNorm < finalResidual || ls === 2) {
               solution = solutionTrial;
               break;
@@ -964,7 +988,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
           break;
         }
       }
-      
+
       if (converged) {
         return {
           solution,
@@ -975,7 +999,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
           finalResidual
         };
       }
-      
+
       // 如果失败且允许增加 Gmin，尝试更大的值
       if (config.allowGminIncrease && attempts < maxAttempts) {
         gmin *= 10;
@@ -983,7 +1007,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         this._logEvent('convergence_helper', undefined,
           `[MCAS-L2] Increasing Gmin to ${gmin.toExponential(2)} (attempt ${attempts}/${maxAttempts})`);
       }
-      
+
       if (bestResult === null || finalResidual < bestResult.finalResidual) {
         bestResult = {
           solution,
@@ -995,7 +1019,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         };
       }
     }
-    
+
     this._logEvent('convergence_helper', undefined,
       `[MCAS-L2] ❌ Gmin-NR failed after ${attempts} attempts, best residual=${bestResult!.finalResidual.toExponential(3)}`);
     return bestResult!;
@@ -1011,23 +1035,23 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
   ): Promise<NewtonResult> {
     this._logEvent('convergence_helper', undefined,
       `[MCAS-L3] Activating Phoenix solver (max ${maxSteps} steps)`);
-    
+
     let x = initialGuess.clone();
     let pseudoTimeStep = 0.01;
     const minPseudoTimeStep = 1e-10;
     const growthFactor = 1.2;
     const shrinkFactor = 0.5;
     const tolerance = Math.max(this._config.voltageToleranceAbs, 1e-6);
-    
+
     for (let step = 0; step < maxSteps; step++) {
       // 🔥 CRITICAL: Check for NaN BEFORE assembly
-      const hasNaN = Array.from({length: x.size}, (_, i) => x.get(i)).some(v => !isFinite(v));
+      const hasNaN = Array.from({ length: x.size }, (_, i) => x.get(i)).some(v => !isFinite(v));
       if (hasNaN) {
         this._logEvent('convergence_helper', undefined,
           `[MCAS-L3] NaN detected in solution at step ${step}, aborting Phoenix`);
         break;
       }
-      
+
       // 计算残差
       this.assemble(x, time);
       const J = this._systemMatrix;
@@ -1035,7 +1059,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       const Jx = J.multiply(x) as Vector;
       const G_x = (b as Vector).minus(Jx) as Vector;
       const residualNorm = G_x.norm();
-      
+
       if (residualNorm < tolerance) {
         this._logEvent('convergence_helper', undefined,
           `[MCAS-L3] ✅ Phoenix converged in ${step} steps, residual=${residualNorm.toExponential(3)}`);
@@ -1048,19 +1072,19 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
           finalResidual: residualNorm
         };
       }
-      
+
       // 构造伪瞬态雅可比 [J + (1/dτ)*I]
       const J_pseudo = (J as SparseMatrix).clone();
       const c = 1.0 / pseudoTimeStep;
       for (let i = 0; i < x.size; i++) {
         J_pseudo.add(i, i, c);
       }
-      
+
       // 求解 [J + (1/dτ)*I] * delta = -G(x)
       try {
         const delta = await this._solveLinearSystem(J_pseudo, G_x);
         x = (x as Vector).plus(delta as Vector) as Vector;
-        
+
         // 自适应步长
         const newResidualNorm = this._evaluateResidualNorm(x, time);
         if (newResidualNorm < residualNorm * 0.9) {
@@ -1075,11 +1099,11 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         }
       }
     }
-    
+
     const finalResidual = this._evaluateResidualNorm(x, time);
     this._logEvent('convergence_helper', undefined,
       `[MCAS-L3] ❌ Phoenix failed after ${maxSteps} steps, residual=${finalResidual.toExponential(3)}`);
-    
+
     return {
       solution: x,
       velocity: new Vector(x.size),
@@ -1109,7 +1133,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       // 简单收敛
       this._consecutiveEasySteps++;
       this._consecutiveHardSteps = 0;
-      
+
       if (this._consecutiveEasySteps >= this._easyThreshold) {
         this._solverState = 'EASY';
         this._logEvent('state_machine', undefined, '[MCAS] Entering EASY state');
@@ -1118,7 +1142,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       // 困难收敛
       this._consecutiveHardSteps++;
       this._consecutiveEasySteps = 0;
-      
+
       if (this._consecutiveHardSteps >= this._hardThreshold) {
         this._solverState = 'HARD';
         this._logEvent('state_machine', undefined, '[MCAS] Entering HARD state');
@@ -1127,7 +1151,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       // 正常收敛
       if (this._consecutiveEasySteps > 0) this._consecutiveEasySteps--;
       if (this._consecutiveHardSteps > 0) this._consecutiveHardSteps--;
-      
+
       if (this._consecutiveEasySteps === 0 && this._consecutiveHardSteps === 0) {
         this._solverState = 'NORMAL';
       }
@@ -1156,27 +1180,27 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     const gminSteps = 15;        // 增加步數以提高穩定性
     const initialGmin = 1.0;     // 從 1Ω 開始 (非常強的耦合)
     const finalGmin = 1e-12;     // 最終收斂到 1TΩ (接近理想開路)
-    
+
     for (let step = 0; step <= gminSteps; step++) {
       const factor = step / gminSteps;
       // Use logarithmic stepping for gmin
       const currentGmin = initialGmin * Math.pow(finalGmin / initialGmin, factor);
-      
+
       this._logEvent('gmin_step', undefined, `Gmin=${currentGmin.toExponential(2)}, Step ${step}/${gminSteps}`);
 
       // Pass the current Gmin value to the Newton-Raphson solver
       const newtonResult = await this._solveDCNewtonRaphson(currentGmin);
-      
+
       if (!newtonResult) {
         this._logEvent('gmin_step_failed', undefined, `Newton-Raphson failed with Gmin = ${currentGmin.toExponential(2)}`);
         return false;
       }
     }
-    
+
     // Final check with zero Gmin
     this._logEvent('gmin_step', undefined, 'Final convergence check with Gmin = 0');
     const finalConverged = await this._solveDCNewtonRaphson(0);
-    
+
     // 物理合理性檢查
     console.log(`>>> GMIN_STEPPING_FINAL_CONVERGED: ${finalConverged}`);
     if (finalConverged) {
@@ -1188,16 +1212,16 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         return false;
       }
     }
-    
+
     return finalConverged;
   }
 
   /**
    * 🧭 廣義同倫延拓求解器 (終極防線)
-   * 
+   *
    * 當所有傳統方法 (Gmin Stepping, Source Stepping, Newton-Raphson) 均失敗時，
    * 使用數學上更完備的弧長延拓法來尋找 DC 工作點。
-   * 
+   *
    * 優勢：
    * - 可處理解路徑上的轉折點
    * - 對極端初始條件更魯棒
@@ -1206,16 +1230,16 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
   private async _tryGeneralizedHomotopy(): Promise<boolean> {
     console.log('🧭🧭🧭 啟動廣義同倫延拓求解器 (終極防線) 🧭🧭🧭');
     console.log(`   系統大小: ${this._solutionVector.size} 節點`);
-    
+
     // 創建同倫系統適配器
     const homotopySystem: IHomotopySystem = {
       size: this._solutionVector.size,
-      
+
       assemble: (x: Vector, time: number) => {
         // 清空矩陣和 RHS
         this._systemMatrix.clear();
         this._rhsVector.fill(0);
-        
+
         // 創建組裝上下文
         const context: AssemblyContext = {
           matrix: this._systemMatrix as SparseMatrix,
@@ -1225,10 +1249,10 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
           dt: 0,
           solutionVector: x,
           previousSolutionVector: this._previousSolutionVector as Vector,
-          getExtraVariableIndex: (componentName: string, variableType: string) => 
+          getExtraVariableIndex: (componentName: string, variableType: string) =>
             this._extraVariableManager?.getIndex(componentName, variableType as ExtraVariableType)
         };
-        
+
         // 組裝所有組件（DC 分析不需要 Gmin）
         for (const device of this._devices.values()) {
           try {
@@ -1238,23 +1262,23 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
           }
         }
       },
-      
+
       getJacobian: () => {
         return this._systemMatrix as SparseMatrix;
       },
-      
+
       getRHS: () => {
         return this._rhsVector as Vector;
       },
-      
+
       getSolution: () => {
         return this._solutionVector as Vector;
       }
     };
-    
+
     // 🔥 關鍵修復：不使用可能是全零的解向量，而是創建一個非零初始猜測
     // 這是為了避免同倫路徑陷入平凡解（x=0）的陷阱
-    // 
+    //
     // 理論依據：如果起點 a≈0，並且 F(0)=0（平凡解），那麼同倫函數
     // H(x,λ) = F(x) - (1-λ)F(a) 在整個 λ∈[0,1] 上都滿足 H(0,λ)=0
     // 這會導致求解器沿著 x=0 這條平凡路徑前進，永遠找不到非零的物理解
@@ -1262,7 +1286,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     // 解決方案：使用非零起點 a，使得 F(a)≠0，這樣 F(a) 項就像一個「推力」
     // 會把解路徑推離 x=0，迫使求解器尋找真正的物理解
     const initialGuess = new Vector(this._solutionVector.size);
-    
+
     // 方案：使用混合的智能初始猜測
     // - 對於節點電壓：使用小的正值（模擬輕微的正偏壓）
     // - 對於額外變量（電流等）：使用小的隨機值打破對稱性
@@ -1276,9 +1300,9 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         initialGuess.set(i, (Math.random() - 0.5) * 0.02);
       }
     }
-    
+
     console.log(`   初始猜測範圍: [${Math.min(...initialGuess.toArray()).toFixed(3)}, ${Math.max(...initialGuess.toArray()).toFixed(3)}]`);
-    
+
     // 創建同倫求解器實例
     const homotopySolver = new GeneralizedHomotopy(homotopySystem, initialGuess, {
       maxSteps: 200,
@@ -1289,58 +1313,58 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       correctorMaxIter: 15,
       targetLambda: 1.0
     });
-    
+
     // 執行同倫延拓求解
     const result = homotopySolver.solve();
-    
+
     if (result.success && result.solution) {
       console.log(`✅ 同倫延拓數值收斂！共 ${result.states.length} 步`);
-      
+
       // 將解複製到系統解向量
       for (let i = 0; i < result.solution.size; i++) {
         this._solutionVector.set(i, result.solution.get(i));
       }
-      
+
       // 驗證 1：檢查 KCL 殘差
       const finalResidual = this._computeKCLResidual(this._solutionVector as Vector);
       const residualNorm = finalResidual.norm();
       console.log(`  數值殘差: ||F(x)|| = ${residualNorm.toExponential(2)}`);
-      
+
       if (residualNorm >= 1e-4) {
         console.log('❌ 同倫延拓：數值殘差過大');
         return false;
       }
-      
+
       // 驗證 2：物理合理性檢查（關鍵！防止平凡解）
       const isPhysicallyValid = this._isSolutionPhysicallyPlausible();
       if (!isPhysicallyValid) {
         console.log('❌ 同倫延拓：解不符合物理預期（可能陷入平凡解）');
         return false;
       }
-      
+
       console.log('✅ 同倫延拓完全成功：數值收斂 + 物理合理');
       return true;
     }
-    
+
     console.log('❌ 同倫延拓數值求解失敗');
     return false;
   }
 
   /**
    * 🎯 计算 KCL 残差 F(x)
-   * 
+   *
    * 正确的方法：对于每个节点，计算所有流入/流出的电流总和
    * F[i] = Σ I_in[i] - Σ I_out[i] (应该为0，满足基尔霍夫电流定律)
-   * 
+   *
    * 这是 Newton-Raphson 的核心：我们需要找到 x 使得 F(x) = 0
-   * 
+   *
    * @param x - 当前的电压解向量
    * @returns 残差向量 F(x)
    */
   private _computeKCLResidual(x: Vector): Vector {
     const F = new Vector(x.size);
     F.fill(0);
-    
+
     // 创建组装上下文用于 computeCurrent
     const context: AssemblyContext = {
       matrix: this._systemMatrix as SparseMatrix,
@@ -1350,31 +1374,31 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       dt: 0,
       solutionVector: x,
       previousSolutionVector: this._previousSolutionVector as Vector,
-      getExtraVariableIndex: (componentName: string, variableType: string) => 
+      getExtraVariableIndex: (componentName: string, variableType: string) =>
         this._extraVariableManager?.getIndex(componentName, variableType as ExtraVariableType)
     };
-    
+
     // 遍历所有组件，累加每个组件的电流贡献
     for (const device of this._devices.values()) {
       try {
         // 计算组件电流 (正值表示从正节点流向负节点)
         const current = device.computeCurrent(x, context);
-        
+
         // 对于两端口组件，电流从正节点流出，流入负节点
         if (device.nodes.length >= 2) {
           const posNodeId = device.nodes[0];
           const negNodeId = device.nodes[1];
-          
+
           if (posNodeId === undefined || negNodeId === undefined) {
             continue;  // 安全检查
           }
-          
+
           const posNode = posNodeId.toString();
           const negNode = negNodeId.toString();
-          
+
           const posIndex = this._nodeMapping.get(posNode);
           const negIndex = this._nodeMapping.get(negNode);
-          
+
           // KCL: 流出为正，流入为负
           if (posIndex !== undefined && posIndex > 0) {  // 跳过地节点
             F.set(posIndex, F.get(posIndex) + current);  // 从正节点流出
@@ -1388,7 +1412,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         throw error;
       }
     }
-    
+
     return F;
   }
 
@@ -1398,71 +1422,71 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     const x_k = this._solutionVector as Vector;
 
     while (iterations < this._config.maxNewtonIterations) {
-        // 1. 根據當前的解 x_k 組裝雅可比矩陣 J(x_k) 和 RHS b(x_k)
-        // 🎯 關鍵：assemble() 必須在當前 x_k 處線性化非線性組件
-        this._assembleSystem(0, gmin, 0); // 🎯 time=0, gmin, dt=0 for DC analysis
-        const J = this._systemMatrix;
-        const b = this._rhsVector;
-        
-        // 🎯 **MNA 殘差**: F(x_k) = J(x_k) * x_k - b(x_k)
-        // 對於正確組裝的 MNA 系統，這就是 KCL 殘差
-        const F = (J.multiply(x_k) as Vector).minus(b);
+      // 1. 根據當前的解 x_k 組裝雅可比矩陣 J(x_k) 和 RHS b(x_k)
+      // 🎯 關鍵：assemble() 必須在當前 x_k 處線性化非線性組件
+      this._assembleSystem(0, gmin, 0); // 🎯 time=0, gmin, dt=0 for DC analysis
+      const J = this._systemMatrix;
+      const b = this._rhsVector;
 
-        // 2. 求解線性系統 J(x_k) * Δx = -F(x_k)
-        const F_neg = F.scale(-1);
-        const delta_x = await this._solveLinearSystem(J, F_neg);
+      // 🎯 **MNA 殘差**: F(x_k) = J(x_k) * x_k - b(x_k)
+      // 對於正確組裝的 MNA 系統，這就是 KCL 殘差
+      const F = (J.multiply(x_k) as Vector).minus(b);
 
-        // 🔥 FIX: 完整的 NaN 檢查 - 檢查向量中的每個元素
-        // 不只檢查 norm()，因為 NaN 可能被掩蓋在部分元素中
-        let hasNaN = false;
-        const n = delta_x.size;
-        for (let i = 0; i < n; i++) {
-            const val = delta_x.get(i);
-            if (!isFinite(val)) {  // 同時捕獲 NaN 和 Infinity
-                hasNaN = true;
-                // 嘗試找到節點名稱（如果可能）
-                let nodeName = `index ${i}`;
-                for (const [name, idx] of this._nodeMapping) {
-                    if (idx === i) {
-                        nodeName = name;
-                        break;
-                    }
-                }
-                this._logEvent('DC_SOLVER_ERROR', undefined, 
-                    `[Iter ${iterations}] delta_x[${i}] = ${val} (non-finite at node '${nodeName}')`);
-                break;
+      // 2. 求解線性系統 J(x_k) * Δx = -F(x_k)
+      const F_neg = F.scale(-1);
+      const delta_x = await this._solveLinearSystem(J, F_neg);
+
+      // 🔥 FIX: 完整的 NaN 檢查 - 檢查向量中的每個元素
+      // 不只檢查 norm()，因為 NaN 可能被掩蓋在部分元素中
+      let hasNaN = false;
+      const n = delta_x.size;
+      for (let i = 0; i < n; i++) {
+        const val = delta_x.get(i);
+        if (!isFinite(val)) {  // 同時捕獲 NaN 和 Infinity
+          hasNaN = true;
+          // 嘗試找到節點名稱（如果可能）
+          let nodeName = `index ${i}`;
+          for (const [name, idx] of this._nodeMapping) {
+            if (idx === i) {
+              nodeName = name;
+              break;
             }
+          }
+          this._logEvent('DC_SOLVER_ERROR', undefined,
+            `[Iter ${iterations}] delta_x[${i}] = ${val} (non-finite at node '${nodeName}')`);
+          break;
         }
-        
-        if (hasNaN || isNaN(delta_x.norm())) {
-            this._logEvent('DC_SOLVER_ERROR', undefined, 
-                `[Iter ${iterations}] Linear solver returned invalid solution. Possible causes: singular matrix, ill-conditioned system, or numerical overflow.`);
-            return false;
-        }
+      }
 
-        // 3. 更新解 x_{k+1} = x_k + Δx
-        // 注意：這裡的 this._solutionVector 就是 x_k，所以我們直接在它上面操作
-        (this._solutionVector as Vector).addInPlace(delta_x);
-        
-        // 4. 檢查收斂性
-        const deltaNorm = delta_x.norm();
-        const solutionNorm = this._solutionVector.norm();
-        const residualNorm = F.norm();
+      if (hasNaN || isNaN(delta_x.norm())) {
+        this._logEvent('DC_SOLVER_ERROR', undefined,
+          `[Iter ${iterations}] Linear solver returned invalid solution. Possible causes: singular matrix, ill-conditioned system, or numerical overflow.`);
+        return false;
+      }
 
-        if (this._config.verboseLogging) {
-            console.log(`  [DC Iter ${iterations}] ||F(x)|| = ${residualNorm.toExponential(4)}, ||Δx|| = ${deltaNorm.toExponential(4)}`);
-        }
+      // 3. 更新解 x_{k+1} = x_k + Δx
+      // 注意：這裡的 this._solutionVector 就是 x_k，所以我們直接在它上面操作
+      (this._solutionVector as Vector).addInPlace(delta_x);
 
-        // 检查两个收斂条件：残差足够小 AND 更新足够小
-        const residualConverged = residualNorm < this._config.currentToleranceAbs;
-        const updateConverged = deltaNorm < (this._config.voltageToleranceRel * solutionNorm + this._config.voltageToleranceAbs);
-        
-        if (residualConverged && updateConverged) {
-            this._logEvent('DC_NR_CONVERGED', undefined, `Newton-Raphson converged in ${iterations + 1} iterations.`);
-            return true;
-        }
-        
-        iterations++;
+      // 4. 檢查收斂性
+      const deltaNorm = delta_x.norm();
+      const solutionNorm = this._solutionVector.norm();
+      const residualNorm = F.norm();
+
+      if (this._config.verboseLogging) {
+        console.log(`  [DC Iter ${iterations}] ||F(x)|| = ${residualNorm.toExponential(4)}, ||Δx|| = ${deltaNorm.toExponential(4)}`);
+      }
+
+      // 检查两个收斂条件：残差足够小 AND 更新足够小
+      const residualConverged = residualNorm < this._config.currentToleranceAbs;
+      const updateConverged = deltaNorm < (this._config.voltageToleranceRel * solutionNorm + this._config.voltageToleranceAbs);
+
+      if (residualConverged && updateConverged) {
+        this._logEvent('DC_NR_CONVERGED', undefined, `Newton-Raphson converged in ${iterations + 1} iterations.`);
+        return true;
+      }
+
+      iterations++;
     }
 
     this._logEvent('DC_NR_FAILED', undefined, `Newton-Raphson exceeded max iterations (${this._config.maxNewtonIterations}).`);
@@ -1473,13 +1497,13 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
 
   /**
    * 🎯 執行單一時間步進（事件驅動架構 Event-Driven Architecture）
-   * 
+   *
    * 核心四階段流程：
    * 1. 🔮 預測 (Proactive Prediction): 檢查已知斷點 (如 PULSE 邊沿)
    * 2. ⚖️ 約束 (Constrain): 調整步長以精確命中斷點
    * 3. ⚙️ 積分 (Integrate): 執行不跨越斷點的「暫定」步驟
    * 4. 🔍 驗證 (Reactive Verification): 用零交叉檢測捕獲意外的狀態轉換
-   * 
+   *
    * 這種雙重保護機制確保：
    * - 已知不連續點 (breakpoints) 被精確命中
    * - 未預期的事件 (zero-crossings) 被及時捕獲
@@ -1493,7 +1517,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     let isInRamp = false;
     let rampEndTime = Infinity;
     let rampSource = 'None';
-    
+
     for (const device of this._devices.values()) {
       if ((device as any).getRampIntervals) {
         try {
@@ -1523,10 +1547,10 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       // 這樣可以避免時間步過小導致的數值剛性問題
       const RAMP_MAX_DT = 1e-9; // 1ns - 是 minTimeStep (1e-10) 的 10 倍
       const RAMP_MIN_DT = 5e-10; // 0.5ns - 斜坡區間的最小步長
-      
+
       // 使用較大的步長，但不超過斜坡剩餘長度
       dt = Math.max(RAMP_MIN_DT, Math.min(dt, RAMP_MAX_DT, rampEndTime - t_start));
-      
+
       console.log(`[RAMP_DEBUG] In ramp from ${rampSource}, t=${t_start.toExponential(4)}s, setting dt to ${dt.toExponential(3)}s (ramp: ${RAMP_MIN_DT.toExponential(1)}s-${RAMP_MAX_DT.toExponential(1)}s), ramp ends at ${rampEndTime.toExponential(4)}s`);
       this._logEvent('RAMP_DETECTED', rampSource, `In ramp, using dt=${dt.toExponential(2)}s`);
     }
@@ -1563,7 +1587,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     let willHitBreakpoint = false;
     if (earliestBreakpoint < t_start + dt) {
       const constrainedDt = earliestBreakpoint - t_start;
-      
+
       // 🔥 關鍵修復：如果斷點非常接近（小於 minTimeStep），直接跳到斷點！
       // 這是因為我們不能跨越斷點，即使距離很小
       if (constrainedDt > this._config.minTimeStep * 0.1) {
@@ -1619,18 +1643,18 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     if (events.length === 0) {
       // --- ✅ 情況 A: 安全的一步，沒有事件 ---
       this._currentTime = t_end;
-      
+
       // 更新解向量並保存為歷史（供下一步使用）
       this._previousSolutionVector = this._solutionVector.clone();
       this._solutionVector = tentativeSolution;
-      
+
       await this._updateDeviceStates(); // 更新智能設備的內部狀態
-      
+
       // 🔥 關鍵修復：如果我們剛剛命中了一個斷點，必須重啟積分器
       // 因為在斷點處，系統的連續性可能被打破（例如電壓源跳變）
       if (willHitBreakpoint) {
         console.log(`[BREAKPOINT_DEBUG] Hit breakpoint at t=${t_end.toExponential(4)}s, restarting integrator.`);
-        
+
         // 🎯 在斷點處重新計算 DC 工作點作為新的初始狀態
         // 這確保了解與新的電壓源值一致
         try {
@@ -1642,7 +1666,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
           const residual = b.minus(J.multiply(this._solutionVector)) as Vector;
           const residualNorm = residual.norm();
           console.log(`[BREAKPOINT_DEBUG] Initial residual at breakpoint: ${residualNorm.toExponential(3)}`);
-          
+
           if (residualNorm > 1e-6) {
             // 執行幾步 Newton 來改善解
             const MAX_BP_NEWTON = 5;
@@ -1658,10 +1682,10 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
                 this.assemble(this._solutionVector, this._currentTime);
                 const newResidual = this.getRHS().minus(this.systemMatrix.multiply(this._solutionVector)) as Vector;
                 const newNorm = newResidual.norm();
-                console.log(`[BREAKPOINT_DEBUG] After Newton step ${i+1}: residual = ${newNorm.toExponential(3)}`);
+                console.log(`[BREAKPOINT_DEBUG] After Newton step ${i + 1}: residual = ${newNorm.toExponential(3)}`);
                 if (newNorm < 1e-8) break;
               } catch (error) {
-                console.log(`[BREAKPOINT_DEBUG] Newton step ${i+1} failed, continuing with current solution`);
+                console.log(`[BREAKPOINT_DEBUG] Newton step ${i + 1} failed, continuing with current solution`);
                 break;
               }
             }
@@ -1669,7 +1693,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         } catch (error) {
           console.log(`[BREAKPOINT_DEBUG] DC recomputation failed, using existing solution: ${error}`);
         }
-        
+
         await this._integrator.restart({
           time: this._currentTime,
           solution: this._solutionVector as Vector,
@@ -1677,7 +1701,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
           derivative: Vector.zeros(this._solutionVector.size),
         });
         this._logEvent('INTEGRATOR_RESTART', breakpointSource, `Integrator restarted at breakpoint t=${t_end.toExponential(3)}s.`);
-        
+
         // 🎯 斷點後使用更大的初始步長，避免過小步長導致的數值剛性
         // 特別是對於進入斜坡區間的情況
         const POST_BREAKPOINT_DT = 1e-9; // 1ns - 比 minTimeStep 大 10 倍
@@ -1687,7 +1711,18 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
         // 正常情況：使用積分器建議的下一步長
         this._currentTimeStep = this._adaptTimeStep(integratorResult.nextDt);
       }
-      
+
+      // 🔥 瞬态 Gmin Stepping：成功一步后递减计数器并衰减 gmin
+      if (this._transientGminSteps > 0) {
+        this._transientGminSteps--;
+        // 指数衰减：每步减半
+        this._transientGminCurrent *= 0.5;
+
+        if (this._transientGminSteps === 0) {
+          this._logEvent('TRANSIENT_GMIN', undefined, '✅ Transient Gmin Stepping completed, switching to normal gmin=1e-9S');
+        }
+      }
+
       this._logEvent('STEP_ACCEPTED', undefined, `Step to ${t_end.toExponential(3)}s. Next dt: ${this._currentTimeStep.toExponential(3)}s.`);
       return true;
 
@@ -1697,7 +1732,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       if (!firstEvent) {
         return true; // 防禦性檢查
       }
-      
+
       this._logEvent('EVENT_DETECTED', firstEvent.component.name, `Event '${firstEvent.type}' detected in [${t_start.toExponential(3)}, ${t_end.toExponential(3)}]`);
       return await this._handleDetectedEvent(firstEvent, t_start);
     }
@@ -1705,7 +1740,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
 
   /**
    * 🎯 處理檢測到的事件（封裝事件處理複雜邏輯）
-   * 
+   *
    * 完整流程：
    * a. 使用二分法精確定位事件時間
    * b. 精確積分到事件發生點
@@ -1758,7 +1793,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
 
   /**
    * 🔧 處理單個事件（調用設備並重啟積分器）
-   * 
+   *
    * 關鍵職責：
    * 1. 讓設備自己更新內部狀態 (通過 handleEvent())
    * 2. 重啟積分器，因為系統連續性已被打破
@@ -1790,27 +1825,27 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       // 事件發生後，我們無法知道導數是什麼，最安全的假設是0
       derivative: Vector.zeros(this._solutionVector.size),
     });
-    
+
     this._logEvent('INTEGRATOR_RESTART', device.name, `Integrator restarted after event ${event.type}.`);
   }
 
   /**
    * 🚀 系统矩阵装配 (重构版本)
-   * 
+   *
    * 使用统一的组装接口，消除 stamp() vs load() 的分裂
    * 所有组件都通过 assemble() 方法提供其 MNA 贡献
-   * 
+   *
    * @param time - 装配时的仿真时间 (默认使用当前时间)
    * @param gmin - Gmin Stepping 的电导值
    * @param dt - 时间步长 (默认使用当前时间步长，DC 分析时应传入 0)
    */
   private _assembleSystem(time: number = this._currentTime, gmin: number = 0, dt: number = this._currentTimeStep): void {
     const assemblyStartTime = performance.now();
-    
+
     // 清空矩阵和向量
     this._systemMatrix.clear();
     this._rhsVector.fill(0);
-    
+
     // 創建統一的組裝上下文
     const assemblyContext: AssemblyContext = {
       matrix: this._systemMatrix as SparseMatrix,
@@ -1821,10 +1856,17 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       previousSolutionVector: this._previousSolutionVector as Vector, // 🔧 使用历史解向量
       solutionVector: this._solutionVector as Vector,
       gmin: gmin,
-      getExtraVariableIndex: (componentName: string, variableType: string) => 
-        this._extraVariableManager?.getIndex(componentName, variableType as ExtraVariableType)
+      getExtraVariableIndex: (componentName: string, variableType: string) =>
+        this._extraVariableManager?.getIndex(componentName, variableType as ExtraVariableType),
+
+      // 🚀 新增：積分器係數 (從 Generalized-α 傳遞過來)
+      // 只有在瞬態分析時這些係數才會被設置
+      ...(this._G_coeff !== undefined && { G_coeff: this._G_coeff }),
+      ...(this._I_coeff !== undefined && { I_coeff: this._I_coeff }),
+      ...(this._R_coeff !== undefined && { R_coeff: this._R_coeff }),
+      ...(this._V_coeff !== undefined && { V_coeff: this._V_coeff })
     };
-    
+
     // ✅ 這就是先進架構的威力：一個簡單、統一的迴圈！
     for (const device of this._devices.values()) {
       try {
@@ -1852,13 +1894,13 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     // 🧠 **Ground Node Handling**
     // We use the submatrix method in _solveLinearSystem to properly handle the ground node.
     // NO NEED to modify the matrix here - it will be handled correctly during solve.
-    // 
+    //
     // ❌ REMOVED: The old code that cleared ground node row/column was HARMFUL!
     //    It deleted voltage source KVL equations (e.g., J[iv, groundIndex] = -1)
     //    which caused residual = voltage instead of residual = 0
-    // 
+    //
     // ✅ NOW: Let devices assemble normally, then use submatrix method to remove ground node
-    
+
     this._performanceMetrics.matrixAssemblyTime += performance.now() - assemblyStartTime;
   }
 
@@ -1871,10 +1913,20 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       return (A as SparseMatrix).solve(b);
     }
 
+    // 🔥 CRITICAL FIX: Ensure gmin is applied to all non-ground nodes BEFORE extracting submatrix
+    // This prevents matrix singularity for nodes connected only to voltage sources
+    const GMIN = 1e-12; // Small conductance to ground for numerical stability
+    for (const [nodeName, nodeIndex] of this._nodeMapping.entries()) {
+      if (nodeName !== '0' && nodeIndex !== groundNodeIndex) {
+        const diagBefore = (A as SparseMatrix).get(nodeIndex, nodeIndex);
+        (A as SparseMatrix).set(nodeIndex, nodeIndex, diagBefore + GMIN);
+      }
+    }
+
     // 🧠 **The Submatrix Method: The Correct Way to Handle Ground**
     // 1. Extract the submatrix and sub-vector by removing the ground node's row/column.
     const { matrix: subMatrix, mapping: inverseMapping } = A.submatrix([groundNodeIndex], [groundNodeIndex]);
-    
+
     const subRhs = new Vector(b.size - 1);
     let subIndex = 0;
     for (let i = 0; i < b.size; i++) {
@@ -1897,7 +1949,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     if (zerodiagonalCount > 0) {
       console.warn(`⚠️ [Diagonal Fix] Fixed ${zerodiagonalCount} near-zero diagonal elements`);
     }
-    
+
     // 2b. Solve the smaller, non-singular system.
     let subSolution: IVector;
     try {
@@ -1950,25 +2002,25 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
           internalStates: {},
           temperature: 300
         };
-        
+
         device.updateState(newState);
       }
       // 基础组件不需要状态更新，因为它们是无状态的
     }
   }
 
-// 輔助方法：自適應步長調整
-private _adaptTimeStep(suggestedDt: number): number {
+  // 輔助方法：自適應步長調整
+  private _adaptTimeStep(suggestedDt: number): number {
     let newDt = suggestedDt;
     // 可以在此加入更多邏輯，例如基於 Newton 迭代次數的調整
     newDt = Math.max(this._config.minTimeStep, Math.min(newDt, this._config.maxTimeStep));
     return newDt;
-}
+  }
 
   private _saveWaveformPoint(): void {
     // 保存当前时间点的波形数据
     (this._waveformData.timePoints as Time[]).push(this._currentTime);
-    
+
     // 保存节点电压
     for (let i = 0; i < this._solutionVector.size; i++) {
       if (!this._waveformData.nodeVoltages.has(i)) {
@@ -1976,30 +2028,30 @@ private _adaptTimeStep(suggestedDt: number): number {
       }
       (this._waveformData.nodeVoltages.get(i) as number[]).push(this._solutionVector.get(i));
     }
-    
+
     // 保存设备电流和状态 (简化实现) - 只对智能设备
     const devices = Array.from(this._devices.values());
     for (const device of devices) {
       if (isIntelligentDeviceModel(device)) {
         const deviceId = device.deviceId;
-        
+
         if (!this._waveformData.deviceCurrents.has(deviceId)) {
           (this._waveformData.deviceCurrents as Map<string, number[]>).set(deviceId, []);
           (this._waveformData.deviceStates as Map<string, string[]>).set(deviceId, []);
         }
-        
+
         // TODO: 获取实际设备电流
         (this._waveformData.deviceCurrents.get(deviceId) as number[]).push(0);
         (this._waveformData.deviceStates.get(deviceId) as string[]).push('normal');
       } else {
         // 对基础组件，使用统一的 name 属性
         const deviceId = device.name;
-        
+
         if (!this._waveformData.deviceCurrents.has(deviceId)) {
           (this._waveformData.deviceCurrents as Map<string, number[]>).set(deviceId, []);
           (this._waveformData.deviceStates as Map<string, string[]>).set(deviceId, []);
         }
-        
+
         // 🎯 获取实际设备电流
         let current = 0;
         // 对于电感，电流存储在 extraVariable 中
@@ -2033,7 +2085,7 @@ private _adaptTimeStep(suggestedDt: number): number {
           // 暂时设为 0，需要更复杂的实现
           current = 0;
         }
-        
+
         (this._waveformData.deviceCurrents.get(deviceId) as number[]).push(current);
         (this._waveformData.deviceStates.get(deviceId) as string[]).push('normal');
       }
@@ -2043,9 +2095,9 @@ private _adaptTimeStep(suggestedDt: number): number {
   private _generateFinalResult(): SimulationResult {
     const totalTime = performance.now() - this._startTime;
     this._performanceMetrics.totalSimulationTime = totalTime;
-    
+
     const convergenceRate = 1 - (this._performanceMetrics.failedSteps / Math.max(this._stepCount, 1));
-    
+
     return {
       success: this._state === SimulationState.COMPLETED || this._currentTime >= this._config.endTime,
       finalTime: this._currentTime,
@@ -2061,12 +2113,12 @@ private _adaptTimeStep(suggestedDt: number): number {
   private _initializeWaveformStorage(): void {
     // 预分配波形数据存储
     // 开始瞬态分析 (暂时跳过，集中精力于DC分析)
-    
+
     // 节点电压存储
     for (let nodeId = 0; nodeId < this._nodeMapping.size; nodeId++) {
       (this._waveformData.nodeVoltages as Map<number, number[]>).set(nodeId, []);
     }
-    
+
     // 设备电流和状态存储
     const devices = Array.from(this._devices.values());
     for (const device of devices) {
@@ -2084,9 +2136,9 @@ private _adaptTimeStep(suggestedDt: number): number {
       description,
       data: null
     };
-    
+
     this._events.push(event);
-    
+
     if (this._config.verboseLogging) {
       console.log(`[${type}] t=${this._currentTime.toExponential(3)} ${deviceId ? `[${deviceId}]` : ''}: ${description}`);
     }

@@ -1,11 +1,11 @@
 /**
  * 🔗 理想变压器组件 - AkingSPICE 2.1
- * 
+ *
  * 理想变压器的时域实现，适用于 MNA
  * Vp/Vs = n, n*Ip + Is = 0
  */
 
-import { ComponentInterface, ValidationResult, ComponentInfo, AssemblyContext } from '../../core/interfaces/component';
+import { AssemblyContext, ComponentInfo, ComponentInterface, ValidationResult } from '../../core/interfaces/component';
 import { ComponentValidation, MNAStampingHelpers } from '../../math/numerical/safety';
 
 export class IdealTransformer implements ComponentInterface {
@@ -35,7 +35,7 @@ export class IdealTransformer implements ComponentInterface {
   get turnsRatio(): number {
     return this._turnsRatio;
   }
-  
+
   /**
    * 🔢 设置电流支路索引
    */
@@ -72,7 +72,7 @@ export class IdealTransformer implements ComponentInterface {
     const np2 = context.nodeMap.get(this.nodes[1]);
     const ns1 = context.nodeMap.get(this.nodes[2]);
     const ns2 = context.nodeMap.get(this.nodes[3]);
-    
+
     if (this._primaryCurrentIndex === undefined || this._secondaryCurrentIndex === undefined) {
       throw new Error(`变压器 ${this.name} 的电流支路索引未设置`);
     }
@@ -93,12 +93,12 @@ export class IdealTransformer implements ComponentInterface {
     if (np2 !== undefined) MNAStampingHelpers.safeMatrixAdd(context.matrix, ip, np2, -1, this.name);
     if (ns1 !== undefined) MNAStampingHelpers.safeMatrixAdd(context.matrix, ip, ns1, -n, this.name);
     if (ns2 !== undefined) MNAStampingHelpers.safeMatrixAdd(context.matrix, ip, ns2, n, this.name);
-    
+
     // 🔥🔥 關鍵修復：為初級電流支路方程添加樞軸擾動 🔥🔥
     // 原方程: Vp - n*Vs = 0 (對 ip 的偏導數為 0，導致零對角線)
     // 修正後: Vp - n*Vs + (1e-12)*ip = 0 (對角線元素為 1e-12)
     MNAStampingHelpers.safeMatrixAdd(context.matrix, ip, ip, IdealTransformer.PIVOT_TOLERANCE, this.name);
-    
+
     // 方程2: 电流关系 n*ip + is = 0
     MNAStampingHelpers.safeMatrixAdd(context.matrix, is, ip, n, this.name);
     MNAStampingHelpers.safeMatrixAdd(context.matrix, is, is, 1, this.name);
@@ -109,32 +109,54 @@ export class IdealTransformer implements ComponentInterface {
     return 2; // 需要两个额外的电流变量
   }
 
+  /**
+   * ⚡ 计算通过变压器的电流
+   *
+   * 对于理想变压器，返回初级电流
+   * @param voltages - 系统的完整电压向量
+   * @param context - 组装上下文 (用于获取额外变量)
+   * @returns 初级电流 (A)
+   */
+  computeCurrent(_voltages: import('../../math/sparse/vector').Vector, context?: AssemblyContext): number {
+    if (!context || !context.solutionVector) {
+      // 如果没有解向量，返回0
+      return 0;
+    }
+
+    if (this._primaryCurrentIndex === undefined) {
+      throw new Error(`Transformer ${this.name}: Primary current index not set`);
+    }
+
+    // 从解向量中获取初级电流
+    return context.solutionVector.get(this._primaryCurrentIndex);
+  }
+
   validate(): ValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
-    
+
     // 注意：基本匝数比验证已在构造函数中完成
-    
+
     // 检查匝数比范围（仅警告，因为构造函数已验证基本有效性）
     if (this._turnsRatio < 1e-6) {
       warnings.push(`匝数比过小可能导致数值问题: ${this._turnsRatio}`);
     }
-    
+
     if (this._turnsRatio > 1e6) {
       warnings.push(`匝数比过大可能导致数值问题: ${this._turnsRatio}`);
     }
-    
+
     // 检查节点连接
     if (this.nodes.length !== 4) {
       errors.push(`理想变压器必须连接四个节点，实际: ${this.nodes.length}`);
     }
-    
+
     // 检查节点是否重复
     const uniqueNodes = new Set(this.nodes);
     if (uniqueNodes.size !== 4) {
       errors.push(`变压器节点不能重复: [${this.nodes.join(', ')}]`);
     }
-    
+
     // 检查初级和次级绕组是否短路
     if (this.nodes[0] === this.nodes[1]) {
       errors.push(`初级绕组不能短路: ${this.nodes[0]}`);
@@ -142,7 +164,7 @@ export class IdealTransformer implements ComponentInterface {
     if (this.nodes[2] === this.nodes[3]) {
       errors.push(`次级绕组不能短路: ${this.nodes[2]}`);
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
@@ -160,54 +182,54 @@ export class IdealTransformer implements ComponentInterface {
         primaryCurrentIndex: this._primaryCurrentIndex,
         secondaryCurrentIndex: this._secondaryCurrentIndex,
       },
-      units: { 
+      units: {
         turnsRatio: '',
         primaryCurrentIndex: '#',
         secondaryCurrentIndex: '#'
       }
     };
   }
-  
+
   /**
    * 🔍 调试信息
    */
   toString(): string {
     return `${this.name}: n=${this._turnsRatio} between (${this.nodes[0]},${this.nodes[1]}) and (${this.nodes[2]},${this.nodes[3]})`;
   }
-  
+
   /**
    * ⚡ 计算次级电压
-   * 
+   *
    * 根据初级电压和匝数比计算次级电压
    * Vs = Vp / n
    */
   calculateSecondaryVoltage(primaryVoltage: number): number {
     return primaryVoltage / this._turnsRatio;
   }
-  
+
   /**
    * ⚡ 计算初级电流
-   * 
+   *
    * 根据次级电流和匝数比计算初级电流
    * Ip = -Is / n
    */
   calculatePrimaryCurrent(secondaryCurrent: number): number {
     return -secondaryCurrent / this._turnsRatio;
   }
-  
+
   /**
    * 🔋 功率守恒验证
-   * 
+   *
    * 理想变压器满足功率守恒: Pp = Ps
    * Pp = Vp * Ip, Ps = Vs * Is
    */
   verifyPowerConservation(
-    primaryVoltage: number, 
+    primaryVoltage: number,
     primaryCurrent: number,
-    secondaryVoltage: number, 
+    secondaryVoltage: number,
     secondaryCurrent: number,
     toleranceRatio: number = 1e-12  // 使用更严格的容差以匹配SPICE精度
-  ): { 
+  ): {
     primaryPower: number;
     secondaryPower: number;
     powerDifference: number;
@@ -217,13 +239,13 @@ export class IdealTransformer implements ComponentInterface {
     const primaryPower = primaryVoltage * primaryCurrent;
     const secondaryPower = secondaryVoltage * secondaryCurrent;
     const powerDifference = Math.abs(primaryPower - secondaryPower);
-    
+
     // 使用相对和绝对容差的组合
     const maxPower = Math.max(Math.abs(primaryPower), Math.abs(secondaryPower));
     const relativeTolerance = toleranceRatio * maxPower;
     const absoluteTolerance = 1e-15; // 极小功率时的绝对容差
     const tolerance = Math.max(relativeTolerance, absoluteTolerance);
-    
+
     return {
       primaryPower,
       secondaryPower,
@@ -232,10 +254,10 @@ export class IdealTransformer implements ComponentInterface {
       tolerance
     };
   }
-  
+
   /**
    * 🎛️ 获取等效阻抗
-   * 
+   *
    * 从初级看到次级的等效阻抗变换
    * Z_eq = n² * Z_s
    */
@@ -252,18 +274,18 @@ export namespace TransformerFactory {
    * 创建理想变压器
    */
   export function create(
-    name: string, 
-    primaryNodes: [string, string], 
-    secondaryNodes: [string, string], 
+    name: string,
+    primaryNodes: [string, string],
+    secondaryNodes: [string, string],
     turnsRatio: number
   ): IdealTransformer {
     const nodes: [string, string, string, string] = [
-      primaryNodes[0], primaryNodes[1], 
+      primaryNodes[0], primaryNodes[1],
       secondaryNodes[0], secondaryNodes[1]
     ];
     return new IdealTransformer(name, nodes, turnsRatio);
   }
-  
+
   /**
    * 创建标准电力变压器
    */
@@ -277,7 +299,7 @@ export namespace TransformerFactory {
     const turnsRatio = primaryVoltage / secondaryVoltage;
     return create(name, primaryNodes, secondaryNodes, turnsRatio);
   }
-  
+
   /**
    * 创建升压变压器
    */
@@ -289,7 +311,7 @@ export namespace TransformerFactory {
   ): IdealTransformer {
     return create(name, primaryNodes, secondaryNodes, stepUpRatio);
   }
-  
+
   /**
    * 创建降压变压器
    */
@@ -302,7 +324,7 @@ export namespace TransformerFactory {
     const turnsRatio = 1 / stepDownRatio;
     return create(name, primaryNodes, secondaryNodes, turnsRatio);
   }
-  
+
   /**
    * 创建隔离变压器 (1:1)
    */
@@ -331,7 +353,7 @@ export namespace TransformerTest {
     const calculatedSecondaryVoltage = primaryVoltage / turnsRatio;
     return Math.abs(calculatedSecondaryVoltage - expectedSecondaryVoltage) <= tolerance;
   }
-  
+
   /**
    * 验证电流变换关系
    */
@@ -344,7 +366,7 @@ export namespace TransformerTest {
     const calculatedPrimaryCurrent = -secondaryCurrent / turnsRatio;
     return Math.abs(calculatedPrimaryCurrent - expectedPrimaryCurrent) <= tolerance;
   }
-  
+
   /**
    * 验证阻抗变换关系
    */
@@ -357,7 +379,7 @@ export namespace TransformerTest {
     const calculatedPrimaryImpedance = turnsRatio * turnsRatio * secondaryImpedance;
     return Math.abs(calculatedPrimaryImpedance - expectedPrimaryImpedance) <= tolerance;
   }
-  
+
   /**
    * 创建测试电路
    */
@@ -377,7 +399,7 @@ export namespace TransformerTest {
       secondaryNodes,
       turnsRatio
     );
-    
+
     return {
       transformer,
       primaryNodes,

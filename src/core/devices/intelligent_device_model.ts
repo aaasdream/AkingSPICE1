@@ -1,21 +1,21 @@
 /**
  * 🚀 智能设备模型 API - AkingSPICE 2.1 革命性架构
- * 
+ *
  * 世界领先的非线性设备建模接口，专为电力电子电路设计
  * 结合 Generalized-α 积分器和 Ultra KLU 求解器的终极性能
- * 
+ *
  * 🏆 核心创新：
  * - 物理意义驱动的收敛判断
  * - 自适应 Newton 步长限制
  * - 智能状态预测与事件检测
  * - 数值稳定性保障机制
  * - 多时间尺度处理能力
- * 
+ *
  * 📚 设计理念：
  *   基于现代数值分析理论和电力电子物理特性
  *   参考 Cadence Spectre、Synopsys HSPICE 的工业标准
  *   针对开关器件的特殊数值挑战进行优化
- * 
+ *
  * 🎯 应用场景：
  *   - MOSFET/IGBT 开关建模
  *   - 二极管反向恢复特性
@@ -23,34 +23,35 @@
  *   - 电容/电感寄生效应
  */
 
-import { 
-  Time,
+import { Vector } from '../../math/sparse/vector';
+import {
   IEvent,
   IVector,
+  Time,
 } from '../../types/index';
-import { Vector } from '../../math/sparse/vector';
 // ADDED: Import the base interface
-import type { ComponentInterface, AssemblyContext } from '../interfaces/component';
+import type { AssemblyContext, ComponentInterface } from '../interfaces/component';
 
 /**
  * 设备载入结果
+ * @deprecated This interface is deprecated. All devices now use the assemble() method directly.
  */
 export interface LoadResult {
   /** 载入是否成功 */
   readonly success: boolean;
-  
+
   /** MNA 矩阵贡献 */
   readonly matrixStamp: MatrixStamp;
-  
+
   /** 右侧向量贡献 */
   readonly rhsContribution: { index: number, value: number }[];
-  
+
   /** 设备当前状态 */
   readonly deviceState: DeviceState;
-  
+
   /** 错误信息 (如果载入失败) */
   readonly errorMessage?: string;
-  
+
   /** 性能统计 */
   readonly stats: {
     readonly loadTime: number;        // 载入耗时 (ms)
@@ -61,27 +62,34 @@ export interface LoadResult {
 
 /**
  * MNA 矩阵印花 (Stamp)
+ * @deprecated This interface is deprecated. Use direct matrix manipulation in assemble() instead.
  */
 export interface MatrixStamp {
   /** 印花的矩阵行列位置和数值 */
   readonly entries: readonly StampEntry[];
-  
+
   /** 印花类型 */
   readonly type: StampType;
-  
+
   /** 是否为线性印花 */
   readonly isLinear: boolean;
-  
+
   /** 条件数估计 */
   readonly conditionEstimate?: number;
 }
 
+/**
+ * @deprecated Use direct matrix manipulation instead.
+ */
 export interface StampEntry {
   readonly row: number;
   readonly col: number;
   readonly value: number;
 }
 
+/**
+ * @deprecated Use direct matrix manipulation instead.
+ */
 export enum StampType {
   RESISTIVE = 'resistive',      // 纯阻性
   CAPACITIVE = 'capacitive',    // 电容性
@@ -96,25 +104,25 @@ export enum StampType {
 export interface DeviceState {
   /** 设备 ID */
   readonly deviceId: string;
-  
+
   /** 当前时间 */
   readonly time: Time;
-  
+
   /** 设备端电压 */
   readonly voltage: Vector;
-  
+
   /** 设备端电流 */
   readonly current: Vector;
-  
+
   /** 设备工作模式 */
   readonly operatingMode: string;
-  
+
   /** 物理参数 */
   readonly parameters: Record<string, number>;
-  
+
   /** 内部状态变量 */
   readonly internalStates: Record<string, any>;
-  
+
   /** 温度效应 */
   readonly temperature: number;
 }
@@ -125,16 +133,16 @@ export interface DeviceState {
 export interface ConvergenceInfo {
   /** 是否收敛 */
   readonly converged: boolean;
-  
+
   /** 收敛置信度 [0,1] */
   readonly confidence: number;
-  
+
   /** 物理合理性检查 */
   readonly physicalConsistency: PhysicalConsistency;
-  
+
   /** 建议的 Newton 步长缩放因子 */
   readonly suggestedStepScale: number;
-  
+
   /** 收敛诊断信息 */
   readonly diagnostics: ConvergenceDiagnostics;
 }
@@ -142,16 +150,16 @@ export interface ConvergenceInfo {
 export interface PhysicalConsistency {
   /** 电压是否在合理范围 */
   readonly voltageValid: boolean;
-  
+
   /** 电流是否在合理范围 */
   readonly currentValid: boolean;
-  
+
   /** 功率是否守恒 */
   readonly powerConsistent: boolean;
-  
+
   /** 器件工作区域是否合理 */
   readonly operatingRegionValid: boolean;
-  
+
   /** 详细检查结果 */
   readonly details: string[];
 }
@@ -159,16 +167,16 @@ export interface PhysicalConsistency {
 export interface ConvergenceDiagnostics {
   /** 电压变化率 */
   readonly voltageChangeRate: number;
-  
+
   /** 电流变化率 */
   readonly currentChangeRate: number;
-  
+
   /** Jacobian 条件数 */
   readonly jacobianCondition: number;
-  
+
   /** 非线性强度指标 */
   readonly nonlinearityStrength: number;
-  
+
   /** 建议行动 */
   readonly recommendations: string[];
 }
@@ -179,16 +187,16 @@ export interface ConvergenceDiagnostics {
 export interface PredictionHint {
   /** 预测的下一步状态 */
   readonly predictedState: DeviceState;
-  
+
   /** 预测置信度 */
   readonly confidence: number;
-  
+
   /** 建议的时间步长 */
   readonly suggestedTimestep: number;
-  
+
   /** 潜在的开关事件 */
   readonly switchingEvents: readonly SwitchingEvent[];
-  
+
   /** 数值挑战警告 */
   readonly numericalChallenges: readonly NumericalChallenge[];
 }
@@ -208,25 +216,25 @@ export interface NumericalChallenge {
 
 /**
  * 🚀 智能设备模型基础接口
- * 
+ *
  * 所有电力电子器件的统一建模标准
  * 提供物理意义驱动的数值稳定性保障
- * 
+ *
  * CHANGED: 直接继承 ComponentInterface，实现真正的统一接口
  */
 export interface IIntelligentDeviceModel extends ComponentInterface {
   /** 设备唯一标识符 (对应 ComponentInterface.name) */
   readonly deviceId: string;
-  
+
   /** 设备类型 (对应 ComponentInterface.type) */
   readonly deviceType: string;
-  
+
   /** 设备节点连接 (重载为数值索引，智能设备在数值计算层面工作) */
   readonly nodes: readonly string[];
-  
+
   /** 设备参数 */
   readonly parameters: Readonly<Record<string, number>>;
-  
+
   /**
    * ADDED: 获取设备在给定电压下的工作模式
    * @param voltage 节点电压向量
@@ -234,75 +242,75 @@ export interface IIntelligentDeviceModel extends ComponentInterface {
    * @returns 代表工作模式的字符串
    */
   getOperatingMode(voltage: IVector, nodeMap?: Map<string, number>): string;
-  
+
   /**
    * 🎯 收敛性检查：物理意义驱动的 Newton 收敛判断
-   * 
+   *
    * 不同于传统的纯数值收敛判断，这个方法结合：
    * 1. 物理定律检验 (KCL, KVL, 功率守恒)
    * 2. 器件工作区域合理性
    * 3. 数值稳定性指标
    * 4. 历史收敛模式学习
-   * 
+   *
    * @param deltaV Newton 迭代的电压变化量
    * @returns 详细的收敛分析结果
    */
   checkConvergence(deltaV: IVector, nodeMap?: Map<string, number>): ConvergenceInfo;
-  
+
   /**
    * 🛡️ Newton 步长限制：防止数值发散的智能控制
-   * 
+   *
    * 根据设备物理特性和数值稳定性要求，智能限制 Newton 步长：
    * 1. 防止电压/电流超出物理合理范围
    * 2. 避免跨越器件工作模式边界
    * 3. 处理开关瞬态的数值奇点
    * 4. 自适应步长缩放策略
-   * 
+   *
    * @param deltaV 原始 Newton 步长
    * @returns 经过智能限制的安全步长
    */
   limitUpdate(deltaV: IVector, nodeMap?: Map<string, number>): IVector;
-  
+
   /**
    * 🔮 状态预测：辅助积分器的智能时间步长控制
-   * 
+   *
    * 基于设备物理模型和历史行为，预测：
    * 1. 下一步可能的状态变化
    * 2. 潜在的开关事件时间
    * 3. 数值挑战和建议缓解措施
    * 4. 最优时间步长建议
-   * 
+   *
    * @param dt 当前时间步长
    * @returns 预测结果和优化建议
    */
   predictNextState(dt: number): PredictionHint;
-  
+
   /**
    * 🔄 状态更新：时间步接受后的状态同步
-   * 
+   *
    * 当 Generalized-α 积分器接受一个时间步后，更新：
    * 1. 设备内部状态变量
    * 2. 历史状态缓存
    * 3. 统计和性能指标
    * 4. 自适应参数调整
-   * 
+   *
    * @param newState 新的设备状态
    */
   updateState(newState: DeviceState): void;
-  
+
   /**
    * 📊 性能诊断：设备建模效率分析
-   * 
+   *
    * 提供设备建模的性能统计和优化建议：
    * 1. Newton 收敛统计
    * 2. 数值稳定性历史
    * 3. 计算效率分析
    * 4. 参数敏感度信息
-   * 
+   *
    * @returns 性能报告
    */
   getPerformanceReport(): DevicePerformanceReport;
-  
+
   /**
    * ♻️ 资源清理：释放设备相关资源
    */
@@ -320,7 +328,7 @@ export interface DevicePerformanceReport {
 
 /**
  * 🏭 智能设备模型工厂 (前向声明)
- * 
+ *
  * 为不同类型的电力电子器件创建优化的模型实例
  * 具体实现在 intelligent_device_factory.ts 中
  */
@@ -335,9 +343,9 @@ export abstract class IntelligentDeviceModelFactory {
   ): IIntelligentDeviceModel {
     throw new Error('Factory implementation not loaded. Import from intelligent_device_factory.ts');
   }
-  
+
   /**
-   * 创建二极管智能模型  
+   * 创建二极管智能模型
    */
   static createDiode(
     _deviceId: string,
@@ -346,22 +354,70 @@ export abstract class IntelligentDeviceModelFactory {
   ): IIntelligentDeviceModel {
     throw new Error('Factory implementation not loaded. Import from intelligent_device_factory.ts');
   }
-  
+
   // 注意：电感和电容属于基础组件，在 src/components/passive/ 中实现
   // 智能设备工厂只处理需要智能建模的非线性器件
 }
 
 // 器件参数接口定义
+/**
+ * 🚀 MOSFET 参数接口 - 升级为 BSIM4 级别
+ *
+ * 扩展参数以支持电力电子专业级仿真：
+ * - 精确的开关特性建模
+ * - 非线性寄生电容
+ * - 体二极体反向恢复
+ * - 温度效应
+ */
 export interface MOSFETParameters extends Record<string, number> {
-  readonly Vth: number;      // 阈值电压
-  readonly Kp: number;       // 跨导参数
+  // --- 传统 Level 1 参数 (向后兼容) ---
+  readonly Vth: number;      // 阈值电压 (V) - 兼容参数，优先使用 VTH0
+  readonly Kp: number;       // 跨导参数 (A/V²) - 兼容参数
   readonly lambda: number;   // 沟道长度调制
-  readonly Cgs: number;      // 栅源电容
-  readonly Cgd: number;      // 栅漏电容
-  readonly Ron: number;      // 导通电阻
-  readonly Roff: number;     // 关断电阻
-  readonly Vmax: number;     // 最大工作电压
-  readonly Imax: number;     // 最大工作电流
+  readonly Cgs: number;      // 栅源电容 (F) - 兼容参数，优先使用 CGSO
+  readonly Cgd: number;      // 栅漏电容 (F) - 兼容参数，优先使用 CGDO
+  readonly Ron: number;      // 导通电阻 (Ω)
+  readonly Roff: number;     // 关断电阻 (Ω)
+  readonly Vmax: number;     // 最大工作电压 (V)
+  readonly Imax: number;     // 最大工作电流 (A)
+
+  // --- BSIM4 核心直流参数 ---
+  readonly VTH0?: number;     // 零偏压阈值电压 (V)
+  readonly K1?: number;       // 体偏效应系数 (V^0.5)
+  readonly K2?: number;       // 二次体偏效应系数
+  readonly U0?: number;       // 低场迁移率 (cm²/V·s)
+  readonly UA?: number;       // 迁移率退化系数 (m/V)
+  readonly RDW?: number;      // 漏源电阻宽度系数 (Ω·μm)
+  readonly RSW?: number;      // 源极电阻宽度系数 (Ω·μm)
+
+  // --- BSIM4 关键寄生电容参数 ---
+  readonly CGSO?: number;     // 栅源交叠电容 (F/m)
+  readonly CGDO?: number;     // 栅漏交叠电容 (F/m)
+  readonly CGBO?: number;     // 栅体交叠电容 (F/m)
+  readonly CJ?: number;       // 零偏压结电容 (F/m²)
+  readonly CJSW?: number;     // 零偏压侧壁结电容 (F/m)
+  readonly PB?: number;       // 体结内建电位 (V)
+  readonly MJ?: number;       // 体结电容分级系数
+
+  // --- BSIM4 体二极体参数 ---
+  readonly JS?: number;       // 体二极体饱和电流密度 (A/m²)
+  readonly JSW?: number;      // 侧壁饱和电流密度 (A/m)
+  readonly N?: number;        // 体二极体理想因子
+  readonly TT?: number;       // 体二极体渡越时间 (s)
+  readonly XTI?: number;      // 饱和电流温度指数
+
+  // --- 几何参数 ---
+  readonly W?: number;        // 沟道宽度 (m)
+  readonly L?: number;        // 沟道长度 (m)
+  readonly AD?: number;       // 漏极面积 (m²)
+  readonly AS?: number;       // 源极面积 (m²)
+  readonly PD?: number;       // 漏极周长 (m)
+  readonly PS?: number;       // 源极周长 (m)
+
+  // --- 温度参数 ---
+  readonly TNOM?: number;     // 参数提取温度 (°C)
+  readonly KT1?: number;      // 阈值电压温度系数 (V)
+  readonly KT2?: number;      // 阈值电压温度系数 (dimensionless)
 }
 
 export interface DiodeParameters extends Record<string, number> {
@@ -380,7 +436,7 @@ export interface DiodeParameters extends Record<string, number> {
 
 /**
  * 🚀 智能设备模型基类
- * 
+ *
  * 提供通用的智能建模功能实现
  * 子类只需实现设备特定的物理模型
  */
@@ -388,7 +444,7 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
   protected _currentState: DeviceState;
   protected _stateHistory: DeviceState[] = [];
   protected _performanceStats: DevicePerformanceReport;
-  
+
   // 性能统计
   protected _totalLoadCalls = 0;
   protected _totalLoadTime = 0;
@@ -412,7 +468,7 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
       internalStates: {},
       temperature: 300 // 27°C
     };
-    
+
     // 初始化性能统计
     this._performanceStats = {
       deviceId,
@@ -425,7 +481,7 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
   }
 
   // --- ADDED: 实现 ComponentInterface 所需的属性和方法 ---
-  
+
   /** 对应 ComponentInterface.name */
   get name(): string {
     return this.deviceId;
@@ -435,32 +491,14 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
   get type(): string {
     return this.deviceType;
   }
-  
+
   /**
-   * 🚀 统一组装方法 (NEW!)
-   * 
+   * 🚀 统一组装方法
+   *
    * 智能设备的统一组装接口
+   * 子類必須實現此方法以直接操作 MNA 矩陣
    */
-  assemble(context: AssemblyContext): void {
-    if (!context.solutionVector) {
-      throw new Error(`Intelligent device '${this.name}' requires a solution vector in the assembly context.`);
-    }
-
-    // 調用設備特定的 load() 方法
-    const loadResult = this.load(context.solutionVector);
-    
-    if (!loadResult.success) {
-      throw new Error(`Intelligent device ${this.name} load failed: ${loadResult.errorMessage}`);
-    }
-
-    // 將 load() 結果裝配到系統矩陣
-    for (const entry of loadResult.matrixStamp.entries) {
-      context.matrix.add(entry.row, entry.col, entry.value);
-    }
-    for (const contribution of loadResult.rhsContribution) {
-        context.rhs.add(contribution.index, contribution.value);
-    }
-  }
+  abstract assemble(context: AssemblyContext): void;
 
   /**
    * 👁️ 检查此组件是否会产生事件
@@ -483,17 +521,29 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
   handleEvent(event: IEvent, context: AssemblyContext): void {
     // 检查是否是和自己相关的状态改变事件
     if (event.component === this && context.solutionVector) {
-        const newMode = this.getOperatingMode(context.solutionVector);
-        
-        // 更新当前状态的工作模式和时间
-        this._currentState = {
-            ...this._currentState,
-            operatingMode: newMode,
-            time: event.time,
-        };
-        
-        console.log(`[${this.name}] handled event at t=${event.time.toExponential(3)}s. New mode: ${newMode}`);
+      const newMode = this.getOperatingMode(context.solutionVector);
+
+      // 更新当前状态的工作模式和时间
+      this._currentState = {
+        ...this._currentState,
+        operatingMode: newMode,
+        time: event.time,
+      };
+
+      console.log(`[${this.name}] handled event at t=${event.time.toExponential(3)}s. New mode: ${newMode}`);
     }
+  }
+
+  /**
+   * ⚡ 计算通过设备的电流
+   *
+   * 智能设备通常通过其内部状态变量跟踪电流
+   * 子类应重写此方法以提供准确的电流计算
+   */
+  computeCurrent(_voltages: Vector, _context?: AssemblyContext): number {
+    // 默认实现：返回存储的电流值
+    // 子类应该重写此方法以基于当前电压计算实际电流
+    return this._currentState.current.get(0);
   }
 
   /**
@@ -501,34 +551,34 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
    * @deprecated 請使用 assemble() 方法替代
    */
 
-  
+
   /**
    * ADDED: 实现基本的参数验证
    */
   validate(): { isValid: boolean; errors: string[]; warnings: string[]; } {
     const errors: string[] = [];
     const warnings: string[] = [];
-    
+
     // 基本验证
     if (!this.deviceId || this.deviceId.trim() === '') {
       errors.push('Device ID cannot be empty');
     }
-    
+
     if (!this.deviceType || this.deviceType.trim() === '') {
       errors.push('Device type cannot be empty');
     }
-    
+
     if (this.nodes.length === 0) {
       errors.push('Device must have at least one node');
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
       warnings
     };
   }
-  
+
   /**
    * ADDED: 提供设备信息用于调试
    */
@@ -542,7 +592,7 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
       ...(units && { units }) // 只在有单位信息时包含
     };
   }
-  
+
   /**
    * 子类可重写以提供参数单位信息
    */
@@ -550,23 +600,8 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
     return undefined;
   }
 
-  /**
-   * 🔥 核心方法：载入设备到 MNA 系统
-   * 
-   * 这是设备模型的核心方法，负责：
-   * 1. 计算设备在当前状态下的线性化模型
-   * 2. 生成 MNA 矩阵印花 (stamp)
-   * 3. 计算右侧向量贡献
-   * 4. 更新设备内部状态
-   * 
-   * @param voltage 当前节点电压向量
-   * @returns 载入结果，包含矩阵印花和状态信息
-   * @deprecated The `load` method is deprecated and will be removed. Use `assemble` instead.
-   */
-  load(_voltage: IVector): LoadResult {
-      throw new Error(`The 'load' method is deprecated for device ${this.name}. Use the 'assemble' method instead.`);
-  };
-  
+
+
   /**
    * ADDED: 新增的抽象方法，子类必须实现
    * 获取设备在给定电压下的工作模式
@@ -578,30 +613,30 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
    */
   checkConvergence(deltaV: IVector, nodeMap?: Map<string, number>): ConvergenceInfo {
     const startTime = performance.now();
-    
+
     try {
       // 1. 基础数值检查
       const maxDelta = this._getMaxAbsValue(deltaV);
       const relativeDelta = this._getRelativeChange(deltaV);
-      
+
       // 2. 物理合理性检查
       const physicalCheck = this._checkPhysicalConsistency(deltaV, nodeMap);
-      
+
       // 3. 数值稳定性评估
       const stabilityCheck = this._assessNumericalStability(deltaV);
-      
+
       // 4. 综合收敛判断
       const converged = this._determineConvergence(maxDelta, relativeDelta, physicalCheck, stabilityCheck);
-      
+
       // 5. 置信度计算
       const confidence = this._calculateConfidence(converged, physicalCheck, stabilityCheck);
-      
+
       // 6. Newton 步长缩放建议
       const stepScale = this._suggestStepScale(converged, maxDelta, physicalCheck);
-      
+
       // 7. 诊断信息收集
       const diagnostics = this._generateDiagnostics(deltaV, physicalCheck, stabilityCheck);
-      
+
       return {
         converged,
         confidence,
@@ -609,7 +644,7 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
         suggestedStepScale: stepScale,
         diagnostics
       };
-      
+
     } finally {
       // 性能统计更新
       const checkTime = performance.now() - startTime;
@@ -623,16 +658,16 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
   limitUpdate(deltaV: IVector, nodeMap?: Map<string, number>): IVector {
     // Since IVector doesn't have clone, we create a new Vector from it.
     const limited = Vector.from(deltaV.toArray());
-    
+
     // 1. 物理边界限制
     this._applyPhysicalLimits(limited);
-    
-    // 2. 数值稳定性限制  
+
+    // 2. 数值稳定性限制
     this._applyStabilityLimits(limited);
-    
+
     // 3. 器件特定限制 (子类可重写)
     this._applyDeviceSpecificLimits(limited, nodeMap);
-    
+
     return limited;
   }
 
@@ -646,7 +681,7 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
     const suggestedDt = this._suggestOptimalTimestep(dt);
     const switchingEvents = this._detectSwitchingEvents(dt);
     const challenges = this._identifyNumericalChallenges(dt);
-    
+
     return {
       predictedState,
       confidence,
@@ -662,15 +697,15 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
   updateState(newState: DeviceState): void {
     // 更新状态历史
     this._stateHistory.unshift(this._currentState);
-    
+
     // 限制历史长度
     if (this._stateHistory.length > 10) {
       this._stateHistory.pop();
     }
-    
+
     // 更新当前状态
     this._currentState = { ...newState };
-    
+
     // 更新性能统计
     this._updatePerformanceMetrics();
   }
@@ -711,7 +746,7 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
     // We need to perform vector addition, so we ensure we have a Vector object.
     const currentVoltage = this._currentState.voltage.clone();
     const newVoltage = currentVoltage.plus(deltaV);
-    
+
     return {
       voltageValid: this._isVoltageInRange(newVoltage),
       currentValid: this._isCurrentReasonable(newVoltage, nodeMap),
@@ -725,14 +760,14 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
     // 评估数值稳定性 (0-1, 1为最稳定)
     const deltaRate = this._getRelativeChange(deltaV);
     const convergenceTrend = this._analyzeConvergenceTrend();
-    
+
     return Math.min(1.0, Math.max(0.0, 1.0 - deltaRate * 10) * convergenceTrend);
   }
 
   // === 私有辅助方法 ===
 
   private _determineConvergence(
-    maxDelta: number, 
+    maxDelta: number,
     relativeDelta: number,
     physicalCheck: PhysicalConsistency,
     stability: number
@@ -740,12 +775,12 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
     const VOLTAGE_TOL = 1e-6;  // 1μV
     const RELATIVE_TOL = 1e-8; // 0.000001%
     const MIN_STABILITY = 0.5;
-    
-    return maxDelta < VOLTAGE_TOL && 
-           relativeDelta < RELATIVE_TOL &&
-           physicalCheck.voltageValid &&
-           physicalCheck.currentValid &&
-           stability > MIN_STABILITY;
+
+    return maxDelta < VOLTAGE_TOL &&
+      relativeDelta < RELATIVE_TOL &&
+      physicalCheck.voltageValid &&
+      physicalCheck.currentValid &&
+      stability > MIN_STABILITY;
   }
 
   private _calculateConfidence(
@@ -754,13 +789,13 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
     stability: number
   ): number {
     let confidence = converged ? 0.8 : 0.2;
-    
+
     if (physicalCheck.voltageValid) confidence += 0.1;
     if (physicalCheck.currentValid) confidence += 0.1;
     if (physicalCheck.powerConsistent) confidence += 0.05;
-    
+
     confidence *= stability;
-    
+
     return Math.min(1.0, Math.max(0.0, confidence));
   }
 
@@ -772,11 +807,11 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
     if (converged && physicalCheck.voltageValid) {
       return 1.0; // 可以使用完整步长
     }
-    
+
     if (!physicalCheck.voltageValid) {
       return 0.1; // 物理不合理，大幅缩小步长
     }
-    
+
     // 根据变化幅度调整步长
     const scale = Math.min(1.0, 1e-3 / Math.max(maxDelta, 1e-12));
     return Math.max(0.01, scale);
@@ -824,10 +859,10 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
 
   private _analyzeConvergenceTrend(): number {
     if (this._convergenceHistory.length < 3) return 1.0;
-    
+
     const recentConvergence = this._convergenceHistory.slice(0, 5);
     const convergenceRate = recentConvergence.filter(c => c).length / recentConvergence.length;
-    
+
     return convergenceRate;
   }
 
@@ -841,15 +876,15 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
     stability: number
   ): string[] {
     const recommendations: string[] = [];
-    
+
     if (!physicalCheck.voltageValid) {
       recommendations.push('电压超出合理范围，建议减小 Newton 步长');
     }
-    
+
     if (stability < 0.5) {
       recommendations.push('数值不稳定，建议增加阻尼或使用更小时间步长');
     }
-    
+
     return recommendations;
   }
 
@@ -857,7 +892,7 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
   protected _applyPhysicalLimits(deltaV: Vector): void {
     // 限制单步电压变化不超过 10V
     const MAX_VOLTAGE_STEP = 10.0;
-    
+
     for (let i = 0; i < deltaV.size; i++) {
       const delta = deltaV.get(i);
       if (Math.abs(delta) > MAX_VOLTAGE_STEP) {
@@ -869,7 +904,7 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
   protected _applyStabilityLimits(deltaV: Vector): void {
     // 基于数值稳定性的步长限制
     const stabilityFactor = this._assessNumericalStability(deltaV);
-    
+
     if (stabilityFactor < 0.5) {
       // 稳定性较差时，缩小步长
       for (let i = 0; i < deltaV.size; i++) {
@@ -892,7 +927,7 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
     // 基于时间步长和历史稳定性计算置信度
     const historyStability = this._analyzeConvergenceTrend();
     const timestepFactor = Math.exp(-dt / 1e-6); // 1μs 特征时间
-    
+
     return historyStability * timestepFactor;
   }
 
@@ -930,7 +965,7 @@ export abstract class IntelligentDeviceModelBase implements IIntelligentDeviceMo
 /**
  * ADDED: 關鍵的類型守衛函數
  * 這個函數將被引擎用來區分智能設備和基礎組件
- * 
+ *
  * 檢查邏輯：智能設備必須具有 'assemble' 方法
  */
 export function isIntelligentDeviceModel(component: ComponentInterface): component is IIntelligentDeviceModel {
