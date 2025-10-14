@@ -77,36 +77,24 @@ export class Inductor implements ComponentInterface {
     }
     const iL_idx = this._currentIndex;
 
-    // 2. 计算伴随模型参数
+    // 2. 計算伴隨模型參數
     let Req: number;
     let Veq: number;
 
-    // 🚀 統一架構：瞬態分析必須提供積分器係數
-    // 強制要求在瞬態分析時使用 R_coeff，確保所有元件使用相同的積分方法
-    if (context.R_coeff && dt > 0 && previousSolutionVector) {
-      // 瞬態分析且積分器提供了係數
-      // 等效电阻 R_eq = L * R_coeff
-      // R_coeff 由積分器計算：
-      //   - Backward Euler: R_coeff = 1/dt
-      //   - Generalized-α: R_coeff = γ/(β·dt)
-
-      // 🔥 關鍵修正：實現 UIC (零初始條件)
-      // 只有在 t > 0 時才使用上一步的電流。在 t=0 的第一步，假設 previousCurrent 為 0。
-      let previousCurrent = 0;
-      if (context.currentTime && context.currentTime > 1e-15) { // 使用一個小的閾值來判斷是否為第一步
-        previousCurrent = previousSolutionVector.get(iL_idx);
-      }
-      // else: 在第一步 (t=0)，previousCurrent 保持為 0 (UIC)
-
-      Req = this._inductance * context.R_coeff;
-
-      // 等效电压源 V_eq = R_eq * I_prev
-      // 或者 V_eq = L * V_coeff (如果積分器提供了 V_coeff)
-      // 目前 V_coeff 為 0，所以使用簡化計算
+    // � **簡化模式：返璞歸真** 🔥
+    // 移除所有複雜的積分器係數邏輯，直接使用最簡單的後向歐拉法
+    if (dt > 0 && previousSolutionVector) {
+      // +++ 瞬態分析：使用最簡單的後向歐拉法 (Backward Euler) +++
+      // R_eq = L / dt
+      Req = this._inductance / dt;
+      
+      // 獲取上一步的電流
+      const previousCurrent = previousSolutionVector.get(iL_idx);
+      
+      // V_eq = L * I_prev / dt = R_eq * I_prev
       Veq = Req * previousCurrent;
     } else {
-      // DC 分析或初始時間點：電感視為短路
-      // 使用一个极小的电阻来保证数值稳定性，而不是理想的0电阻
+      // DC 分析：電感視為短路（極小電阻）
       Req = 1e-9; // 1 nΩ
       Veq = 0;
     }

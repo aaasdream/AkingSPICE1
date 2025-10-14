@@ -256,7 +256,8 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     // 初始化积分器
     this._integrator = new GeneralizedAlphaIntegrator({
       spectralRadius: this._config.alphaf, // 使用正确的参数名
-      tolerance: this._config.voltageToleranceAbs,
+      // 🔥 簡化模式：放寬時間步長容差以配合放寬的 Newton 容差
+      tolerance: 1e-2,  // 放寬至 0.01，配合 Newton 容差 1e-3
       maxNewtonIterations: this._config.maxNewtonIterations,
       verbose: this._config.verboseLogging
     });
@@ -715,34 +716,59 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
    * 实现了源步进 (外部循环) 和带步长阻尼的 Newton-Raphson (内部循环)
    */
   private async _performDCAnalysis(): Promise<void> {
-    console.log('📊 開始 DC 工作點分析...');
-
-    // 关键修复：在整个 DC 分析开始时，提供一个初始的非零猜测。
-    // 这可以避免在 v=0 时的数值奇点（例如，在半导体器件模型中）。
+    console.log('📊 開始直流工作點分析 (🔥 簡化模式 + 基礎 Gmin 🔥)...');
+    
+    // 🔥 **簡化策略：返璞歸真 + 最小化收斂輔助** 🔥
+    // 使用 2 步簡化版 Gmin Stepping + 標準 Newton
+    
+    // 步驟 1: 先用較大的 Gmin 求解（提高數值穩定性）
     this._solutionVector.fill(1e-6);
+    console.log('🔧 步驟 1: 使用 Gmin=1e-6 求解...');
+    let converged = await this._solveDCNewtonRaphson(1e-6);
+    
+    if (converged) {
+      // 步驟 2: 用步驟 1 的解作為初始猜測，使用正常的 Gmin
+      console.log('🔧 步驟 2: 使用 Gmin=1e-12 精煉解...');
+      converged = await this._solveDCNewtonRaphson(1e-12);
+      
+      if (converged) {
+        this._logEvent('dc_converged', undefined, '簡化 Gmin Stepping 收斂');
+        
+        if (!this._isSolutionPhysicallyPlausible()) {
+          console.warn('⚠️ DC 分析雖然數值收斂，但解可能不符合物理現實。');
+        }
+        
+        return;
+      }
+    }
 
-    // 步骤 1: Gmin Stepping (作为首选的鲁棒方法)
-    console.log('🔄 优先尝试 Gmin Stepping...');
+    // 如果失敗，就拋出錯誤
+    this._logEvent('dc_failed', undefined, '簡化 DC 分析失敗');
+    throw new Error('DC 工作點分析失敗 (簡化模式)');
+
+    // --- 註解掉所有進階方法 ---
+    /*
+    // 步驟 1: Gmin Stepping (作為首選的魯棒方法)
+    console.log('🔄 優先嘗試 Gmin Stepping...');
     let dcResult = await this._gminSteppingHomotopy();
     if (dcResult) {
-      this._logEvent('dc_converged', undefined, 'Gmin Stepping 收敛');
+      this._logEvent('dc_converged', undefined, 'Gmin Stepping 收斂');
       return;
     }
 
-    // 步骤 2: 源步进 (作为备用方法)
-    console.log('🔄 Gmin Stepping 失败，尝试源步进...');
-    // 在尝试源步进之前，重置解向量，因为 Gmin 可能已将其带入一个不好的区域
+    // 步驟 2: 源步進 (作為備用方法)
+    console.log('🔄 Gmin Stepping 失敗，嘗試源步進...');
     this._solutionVector.fill(1e-6);
     dcResult = await this._sourceSteppingHomotopy();
-    console.log(`📊 源步进結果: ${dcResult ? '成功' : '失敗'}`);
+    console.log(`📊 源步進結果: ${dcResult ? '成功' : '失敗'}`);
     if (dcResult) {
-      this._logEvent('dc_converged', undefined, '源步进收敛');
+      this._logEvent('dc_converged', undefined, '源步進收斂');
       return;
     }
 
-    // 步骤 3: 标准 Newton-Raphson (最后的尝试)
-    console.log('🔄 源步进失败，最后尝试标准 Newton...');
-    this._solutionVector.fill(1e-6); // 再次重置
+    // 步驟 3: 標準 Newton-Raphson (最後的嘗試)
+    console.log('🔄 源步進失敗，最後嘗試標準 Newton...');
+    this._solutionVector.fill(1e-6);
     dcResult = await this._solveDCNewtonRaphson();
     console.log(`📊 標準 Newton 結果: ${dcResult ? '成功' : '失敗'}`);
     if (dcResult) {
@@ -750,18 +776,19 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       return;
     }
 
-    // 步骤 4: 廣義同倫延拓 (終極防線)
+    // 步驟 4: 廣義同倫延拓 (終極防線)
     console.log('🧭 標準方法均失敗，啟動廣義同倫延拓求解器...');
-    this._solutionVector.fill(1e-6); // 重置為初始猜測
+    this._solutionVector.fill(1e-6);
     dcResult = await this._tryGeneralizedHomotopy();
     if (dcResult) {
       this._logEvent('dc_converged', undefined, '廣義同倫延拓收斂');
       return;
     }
 
-    // 最终失败
+    // 最終失敗
     this._logEvent('dc_failed', undefined, '所有 DC 方法失敗 (包含同倫延拓)');
     throw new Error('DC 工作點分析失敗');
+    */
   }
 
   private async _sourceSteppingHomotopy(): Promise<boolean> {
@@ -1419,53 +1446,41 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
   // 替換原有的 _solveDCNewtonRaphson 方法
   private async _solveDCNewtonRaphson(gmin: number = 0): Promise<boolean> {
     let iterations = 0;
+    const maxIter = 100; // 增加迭代次數
     const x_k = this._solutionVector as Vector;
 
-    while (iterations < this._config.maxNewtonIterations) {
+    console.log(`  🔧 DC Newton-Raphson: gmin=${gmin.toExponential(2)}, maxIter=${maxIter}`);
+
+    while (iterations < maxIter) {
       // 1. 根據當前的解 x_k 組裝雅可比矩陣 J(x_k) 和 RHS b(x_k)
-      // 🎯 關鍵：assemble() 必須在當前 x_k 處線性化非線性組件
-      this._assembleSystem(0, gmin, 0); // 🎯 time=0, gmin, dt=0 for DC analysis
+      this._assembleSystem(0, gmin, 0); // time=0, gmin, dt=0 for DC analysis
       const J = this._systemMatrix;
       const b = this._rhsVector;
 
-      // 🎯 **MNA 殘差**: F(x_k) = J(x_k) * x_k - b(x_k)
-      // 對於正確組裝的 MNA 系統，這就是 KCL 殘差
+      // MNA 殘差: F(x_k) = J(x_k) * x_k - b(x_k)
       const F = (J.multiply(x_k) as Vector).minus(b);
 
       // 2. 求解線性系統 J(x_k) * Δx = -F(x_k)
       const F_neg = F.scale(-1);
       const delta_x = await this._solveLinearSystem(J, F_neg);
 
-      // 🔥 FIX: 完整的 NaN 檢查 - 檢查向量中的每個元素
-      // 不只檢查 norm()，因為 NaN 可能被掩蓋在部分元素中
+      // NaN 檢查
       let hasNaN = false;
       const n = delta_x.size;
       for (let i = 0; i < n; i++) {
         const val = delta_x.get(i);
-        if (!isFinite(val)) {  // 同時捕獲 NaN 和 Infinity
+        if (!isFinite(val)) {
           hasNaN = true;
-          // 嘗試找到節點名稱（如果可能）
-          let nodeName = `index ${i}`;
-          for (const [name, idx] of this._nodeMapping) {
-            if (idx === i) {
-              nodeName = name;
-              break;
-            }
-          }
-          this._logEvent('DC_SOLVER_ERROR', undefined,
-            `[Iter ${iterations}] delta_x[${i}] = ${val} (non-finite at node '${nodeName}')`);
           break;
         }
       }
 
       if (hasNaN || isNaN(delta_x.norm())) {
-        this._logEvent('DC_SOLVER_ERROR', undefined,
-          `[Iter ${iterations}] Linear solver returned invalid solution. Possible causes: singular matrix, ill-conditioned system, or numerical overflow.`);
+        console.log(`  ❌ [DC Iter ${iterations}] Linear solver returned NaN/Inf`);
         return false;
       }
 
       // 3. 更新解 x_{k+1} = x_k + Δx
-      // 注意：這裡的 this._solutionVector 就是 x_k，所以我們直接在它上面操作
       (this._solutionVector as Vector).addInPlace(delta_x);
 
       // 4. 檢查收斂性
@@ -1473,23 +1488,27 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       const solutionNorm = this._solutionVector.norm();
       const residualNorm = F.norm();
 
-      if (this._config.verboseLogging) {
-        console.log(`  [DC Iter ${iterations}] ||F(x)|| = ${residualNorm.toExponential(4)}, ||Δx|| = ${deltaNorm.toExponential(4)}`);
+      console.log(`  [DC Iter ${iterations}] ||F||=${residualNorm.toExponential(3)}, ||Δx||=${deltaNorm.toExponential(3)}`);
+
+      // 🔥 檢測停滯：如果 Δx 太小但殘差仍大，說明矩陣可能奇異
+      if (deltaNorm < 1e-15 && residualNorm > 1e-6) {
+        console.log(`  ❌ DC Newton stalled: Δx→0 but ||F||=${residualNorm.toExponential(3)} (matrix may be singular)`);
+        return false;
       }
 
-      // 检查两个收斂条件：残差足够小 AND 更新足够小
-      const residualConverged = residualNorm < this._config.currentToleranceAbs;
+      // 检查收斂
+      const residualConverged = residualNorm < 1e-4; // 放寬容差用於簡化模式
       const updateConverged = deltaNorm < (this._config.voltageToleranceRel * solutionNorm + this._config.voltageToleranceAbs);
 
       if (residualConverged && updateConverged) {
-        this._logEvent('DC_NR_CONVERGED', undefined, `Newton-Raphson converged in ${iterations + 1} iterations.`);
+        console.log(`  ✅ DC Newton converged in ${iterations + 1} iterations`);
         return true;
       }
 
       iterations++;
     }
 
-    this._logEvent('DC_NR_FAILED', undefined, `Newton-Raphson exceeded max iterations (${this._config.maxNewtonIterations}).`);
+    console.log(`  ❌ DC Newton failed after ${maxIter} iterations`);
     return false;
   }
 

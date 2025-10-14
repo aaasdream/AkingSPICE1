@@ -216,6 +216,11 @@ export class VoltageSource implements ComponentInterface, SourceInterface, Scala
 
     // Minimal debug logging at failure time
     const isFailureWindow = context.currentTime > 1.0e-6 && context.currentTime < 1.011e-6;
+    
+    // 🔥 強制輸出關鍵時間點的**所有**電壓源值
+    if (isFailureWindow) {
+      console.log(`  🎯 [${this.name}] t=${context.currentTime.toExponential(3)} → V=${voltage.toExponential(3)}`);
+    }
     if (isFailureWindow && n1 === undefined || n2 === undefined) {
       console.error(`  🔥 VoltageSource ${this.name}: Node mapping failed! n1=${n1}, n2=${n2}`);
       throw new Error(`VoltageSource ${this.name}: Node mapping failed!`);

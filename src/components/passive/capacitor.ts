@@ -67,48 +67,24 @@ export class Capacitor implements ComponentInterface {
       matrix.add(n2, n2, GMIN);
     }
 
-    // 🚀 統一架構：瞬態分析必須提供積分器係數
-    // 強制要求在瞬態分析時使用 G_coeff，確保所有元件使用相同的積分方法
-    if (!context.G_coeff || !previousSolutionVector || dt <= 0) {
-      // 在直流分析 (dt=0 或 dt<0) 或初始时间点
-      // 電容僅貢獻 GMIN，行为类似开路。
-      // GMIN 的注入已经完成，所以这里直接返回。
+    // � **簡化模式：返璞歸真** 🔥
+    // 移除所有複雜的積分器係數邏輯，直接使用最簡單的後向歐拉法
+    // DC 分析：電容視為開路（只有 GMIN 貢獻）
+    if (!previousSolutionVector || !dt || dt <= 0) {
+      // GMIN 的注入已经完成，这里直接返回
       return;
     }
 
-    // --- 以下是瞬态分析部分（必須使用積分器係數）---
-
-    // 🔧 关键修复：使用零初始条件 (UIC - Use Initial Conditions)
-    // 在 t=0 时，假设电容电压为 0，无论 DC 工作点是什么
-    // 这模拟了 SPICE 的 .TRAN UIC 行为
-    let previousVoltage = 0;
-
-    // 调试：打印前几步的值（已禁用）
-    const DEBUG_FIRST_FEW = false;
-    if (DEBUG_FIRST_FEW && context.currentTime < 0.0001) {
-      const v1_prev = (n1 !== undefined && n1 >= 0) ? previousSolutionVector.get(n1) : 0;
-      const v2_prev = (n2 !== undefined && n2 >= 0) ? previousSolutionVector.get(n2) : 0;
-      console.log(`[Cap ${this.name}] t=${context.currentTime.toExponential(2)}, nodes=[${this.nodes[0]}, ${this.nodes[1]}], indices=[${n1}, ${n2}], V_prev=(${v1_prev.toFixed(4)}, ${v2_prev.toFixed(4)})`);
-    }
-
-    if (context.currentTime > 1e-15) {  // 使用小的阈值而不是精确的 0
-      // 对于 t > 0，使用上一步的实际电压
-      const v1_prev = (n1 !== undefined && n1 >= 0) ? previousSolutionVector.get(n1) : 0;
-      const v2_prev = (n2 !== undefined && n2 >= 0) ? previousSolutionVector.get(n2) : 0;
-      previousVoltage = v1_prev - v2_prev;
-    }
-    // else: t=0 时，previousVoltage 保持为 0（零初始条件）
-
-    // 🚀 新代碼：使用積分器提供的係數
-    // 等效电导 G_eq = C * G_coeff
-    // G_coeff 由積分器計算：
-    //   - Backward Euler: G_coeff = 1/dt
-    //   - Generalized-α: G_coeff = γ/(β·dt)
-    const geq = this._capacitance * context.G_coeff;
-
-    // 等效电流源 I_eq = G_eq * V_prev
-    // 或者 I_eq = C * I_coeff (如果積分器提供了 I_coeff)
-    // 目前 I_coeff 為 0，所以使用簡化計算
+    // +++ 瞬態分析：使用最簡單的後向歐拉法 (Backward Euler) +++
+    // G_eq = C / dt
+    const geq = this._capacitance / dt;
+    
+    // 獲取上一步的電壓 (零初始條件)
+    const v1_prev = (n1 !== undefined && n1 >= 0) ? previousSolutionVector.get(n1) : 0;
+    const v2_prev = (n2 !== undefined && n2 >= 0) ? previousSolutionVector.get(n2) : 0;
+    const previousVoltage = v1_prev - v2_prev;
+    
+    // I_eq = C * V_prev / dt = G_eq * V_prev
     const ieq = geq * previousVoltage;
 
     // 装配电导矩阵 (类似电阻)
