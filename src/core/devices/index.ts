@@ -70,13 +70,13 @@ export {
 
 // === 工厂类和套件 ===
 import {
-  SmartDeviceFactory,
-  BuckConverterSmartKit
+  SmartDeviceFactory
+  // BuckConverterSmartKit  // TODO: 暫時註釋，因為未實現
 } from './intelligent_device_factory';
 
 export {
-  SmartDeviceFactory,
-  BuckConverterSmartKit
+  SmartDeviceFactory
+  // BuckConverterSmartKit  // TODO: 暫時註釋
 };
 
 // === 便捷导出函数 ===
@@ -94,13 +94,13 @@ export const createDiode = SmartDeviceFactory.createDiode.bind(SmartDeviceFactor
 /**
  * 快速创建 Buck 变换器智能器件套件
  */
-export const createBuckSmartDevices = BuckConverterSmartKit.createSmartDevices.bind(BuckConverterSmartKit);
+// export const createBuckSmartDevices = BuckConverterSmartKit.createSmartDevices.bind(BuckConverterSmartKit); // TODO
 
 // === 统一导出对象 ===
 export default {
   // 工厂和套件
   SmartDeviceFactory,
-  BuckConverterSmartKit,
+  // BuckConverterSmartKit,  // TODO
   
   // 设备类
   IntelligentMOSFET,
@@ -108,8 +108,8 @@ export default {
   
   // 便捷函数
   createMOSFET,
-  createDiode,
-  createBuckSmartDevices
+  createDiode
+  // createBuckSmartDevices  // TODO
 };
 
 /**

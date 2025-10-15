@@ -1,0 +1,158 @@
+??????????????????????????????????????????????????????????????
+?? NGDevices Transient Debug Suite                         ???? Investigating timestep minimum issue                     ????????????????????????????????????????????????????????????????
+
+=== Debug: Diode Transient Analysis ===
+Circuit: V1(5V DC) --- D1 --- R1(1k峏) --- GND
+Goal: Check why timestep falls below minimum
+
+Configuration:
+  End time: 100ns
+  Initial dt: 10ns
+  Min dt: 1ns
+  Max dt: 20ns
+
+Running transient analysis...
+
+?? ?? DC 撌乩?暺???..
+?? ???折頝荔??芸??岫皞郊??..
+?? 皞郊?莎??曉 1 ?蝮格??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=0.00e+0 (tol=1.00e-9), delta=0.00e+0 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=1.25e+0 (tol=1.00e-9), delta=1.25e+0 (tol=1.00e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.77e-12 (tol=1.00e-9), delta=1.25e-12 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=1.25e+0 (tol=1.00e-9), delta=1.25e+0 (tol=1.00e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.77e-12 (tol=1.00e-9), delta=1.25e-12 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=1.25e+0 (tol=1.00e-9), delta=1.25e+0 (tol=1.00e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.77e-12 (tol=1.00e-9), delta=1.25e-12 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=1.25e+0 (tol=1.00e-9), delta=1.25e+0 (tol=1.00e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.77e-12 (tol=1.00e-9), delta=1.25e-12 (tol=1.00e-6), converged=true
+   >>> PHYSICAL_CHECK: solution_size=4, nodes=3
+   >>> PHYSICAL_CHECK: voltage_sources_found=1
+   >>> PHYSICAL_CHECK: zero_count=2/3, max_V=5.000000V
+   >>> PHYSICAL_CHECK_RESULT: PASS (non_zero=1, max_V=5.000V)
+?? Generalized-帢 integrator restarted with consistent DC operating point.
+? 皞??敹怎: t=1e-9, enabled=true
+? ???敹怎...
+
+======================================================================
+? ?憭望?敹怎: failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15
+======================================================================
+??敹怎撌脖?摮: ./snapshots/
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_meta.json
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_solution.txt
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_residual.txt
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_rhs.txt
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_jacobian.mtx
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_newton_history.csv
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_verify.py
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_summary.txt
+======================================================================
+??敹怎撌脖?摮? failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15
+??Simulation FAILED
+
+Error: undefined
+
+=== Debug: MOSFET Transient Analysis ===
+Circuit: VDD(12V) --- M1 --- R1(10峏) --- GND, Vgate=5V
+Goal: Check MOSFET in transient mode
+
+Configuration:
+  End time: 100ns
+  Initial dt: 10ns
+  Min dt: 1ns
+  Max dt: 20ns
+
+Running transient analysis...
+
+?? ?? DC 撌乩?暺???..
+?? ???折頝荔??芸??岫皞郊??..
+?? 皞郊?莎??曉 2 ?蝮格??
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=0.00e+0 (tol=1.00e-9), delta=0.00e+0 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.25e+0 (tol=1.00e-9), delta=3.25e+0 (tol=1.00e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=5.35e-12 (tol=1.00e-9), delta=3.25e-12 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.25e+0 (tol=1.00e-9), delta=3.25e+0 (tol=1.01e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=5.35e-12 (tol=1.00e-9), delta=3.25e-12 (tol=1.01e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.25e+0 (tol=1.00e-9), delta=3.25e+0 (tol=1.01e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=5.35e-12 (tol=1.00e-9), delta=3.25e-12 (tol=1.01e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.25e+0 (tol=1.00e-9), delta=3.25e+0 (tol=1.01e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=5.35e-12 (tol=1.00e-9), delta=3.25e-12 (tol=1.01e-6), converged=true
+   >>> PHYSICAL_CHECK: solution_size=6, nodes=4
+   >>> PHYSICAL_CHECK: voltage_sources_found=2
+   >>> PHYSICAL_CHECK: zero_count=2/4, max_V=12.000000V
+   >>> PHYSICAL_CHECK_RESULT: PASS (non_zero=2, max_V=12.000V)
+?? Generalized-帢 integrator restarted with consistent DC operating point.
+? 皞??敹怎: t=1e-9, enabled=true
+? ???敹怎...
+
+======================================================================
+? ?憭望?敹怎: failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15
+======================================================================
+??敹怎撌脖?摮: ./snapshots/
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_meta.json
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_solution.txt
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_residual.txt
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_rhs.txt
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_jacobian.mtx
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_newton_history.csv
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_verify.py
+   - failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15_summary.txt
+======================================================================
+??敹怎撌脖?摮? failure_timestep_minimum_t1_000e-9_2025-10-15T13-00-15
+??Simulation FAILED
+
+Error: undefined
+??????????????????????????????????????????????????????????????
+?? ??Some debug tests FAILED                               ???? Issue: Timestep constraints too tight for ngdevices     ????????????????????????????????????????????????????????????????

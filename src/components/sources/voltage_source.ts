@@ -255,11 +255,13 @@ export class VoltageSource implements ComponentInterface, SourceInterface, Scala
     }
 
     // C 矩陣: 支路到節點的關聯 (KVL)
+    // 🔧 修復：SPICE 標準是 V(n2) - V(n1) = Vs (n2 是正極)
+    // 因此 KVL 方程為: -V(n1) + V(n2) = Vs
     if (n1 !== undefined && n1 >= 0) {
-      context.matrix.add(iv, n1, 1);
+      context.matrix.add(iv, n1, -1);  // -V(n1)
     }
     if (n2 !== undefined && n2 >= 0) {
-      context.matrix.add(iv, n2, -1);
+      context.matrix.add(iv, n2, 1);   // +V(n2)
     }
 
     // 🔥🔥🔥 關鍵修復：樞軸擾動 (Pivot Perturbation) 🔥🔥🔥

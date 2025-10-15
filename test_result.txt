@@ -1,0 +1,164 @@
+??????????????????????????????????????????????????????????????
+?? NGDevices Circuit Test Suite                            ????????????????????????????????????????????????????????????????
+
+=== Test 1: Diode Forward Bias Circuit ===
+Circuit: V1(5V) --- D1 --- R1(1k峏) --- GND
+Running DC analysis...
+?? ?? DC 撌乩?暺???..
+?? ???折頝荔??芸??岫皞郊??..
+?? 皞郊?莎??曉 1 ?蝮格??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=0.00e+0 (tol=1.00e-9), delta=0.00e+0 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=1.25e+0 (tol=1.00e-9), delta=1.25e+0 (tol=1.00e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.77e-12 (tol=1.00e-9), delta=1.25e-12 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=1.25e+0 (tol=1.00e-9), delta=1.25e+0 (tol=1.00e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.77e-12 (tol=1.00e-9), delta=1.25e-12 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=1.25e+0 (tol=1.00e-9), delta=1.25e+0 (tol=1.00e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.77e-12 (tol=1.00e-9), delta=1.25e-12 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=1.25e+0 (tol=1.00e-9), delta=1.25e+0 (tol=1.00e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.77e-12 (tol=1.00e-9), delta=1.25e-12 (tol=1.00e-6), converged=true
+   >>> PHYSICAL_CHECK: solution_size=4, nodes=3
+   >>> PHYSICAL_CHECK: voltage_sources_found=1
+   >>> PHYSICAL_CHECK: zero_count=2/3, max_V=5.000000V
+   >>> PHYSICAL_CHECK_RESULT: PASS (non_zero=1, max_V=5.000V)
+??Simulation converged successfully!
+??Exception during simulation: Cannot read properties of undefined (reading 'length')
+TypeError: Cannot read properties of undefined (reading 'length')
+    at testDiodeForwardBias (C:\Aking\AkingSPICE\test_ngdevices_cjs.js:55:75)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runAllTests (C:\Aking\AkingSPICE\test_ngdevices_cjs.js:187:19)
+
+=== Test 2a: MOSFET Switch (Gate=0V, OFF) ===
+Circuit: VDD(12V) --- M1 --- R1(10峏) --- GND, Vgate=0V
+Running DC analysis...
+?? ?? DC 撌乩?暺???..
+?? ???折頝荔??芸??岫皞郊??..
+?? 皞郊?莎??曉 2 ?蝮格??
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=0.00e+0 (tol=1.00e-9), delta=0.00e+0 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.00e+0 (tol=1.00e-9), delta=3.00e+0 (tol=1.00e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=4.24e-12 (tol=1.00e-9), delta=3.00e-12 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.00e+0 (tol=1.00e-9), delta=3.00e+0 (tol=1.01e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=4.24e-12 (tol=1.00e-9), delta=3.00e-12 (tol=1.01e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.00e+0 (tol=1.00e-9), delta=3.00e+0 (tol=1.01e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=4.24e-12 (tol=1.00e-9), delta=3.00e-12 (tol=1.01e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.00e+0 (tol=1.00e-9), delta=3.00e+0 (tol=1.01e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=4.24e-12 (tol=1.00e-9), delta=3.00e-12 (tol=1.01e-6), converged=true
+   >>> PHYSICAL_CHECK: solution_size=6, nodes=4
+   >>> PHYSICAL_CHECK: voltage_sources_found=1
+   >>> PHYSICAL_CHECK: zero_count=3/4, max_V=12.000000V
+   >>> PHYSICAL_CHECK_RESULT: PASS (non_zero=1, max_V=12.000V)
+??Simulation converged successfully!
+??Exception during simulation: Cannot read properties of undefined (reading 'vout')
+TypeError: Cannot read properties of undefined (reading 'vout')
+    at testMosfetSwitch (C:\Aking\AkingSPICE\test_ngdevices_cjs.js:138:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+=== Test 2b: MOSFET Switch (Gate=5V, ON) ===
+    at async runAllTests (C:\Aking\AkingSPICE\test_ngdevices_cjs.js:191:20)
+Circuit: VDD(12V) --- M1 --- R1(10峏) --- GND, Vgate=5V
+Running DC analysis...
+?? ?? DC 撌乩?暺???..
+?? ???折頝荔??芸??岫皞郊??..
+?? 皞郊?莎??曉 2 ?蝮格??
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=0.00e+0 (tol=1.00e-9), delta=0.00e+0 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.25e+0 (tol=1.00e-9), delta=3.25e+0 (tol=1.00e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=5.35e-12 (tol=1.00e-9), delta=3.25e-12 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.25e+0 (tol=1.00e-9), delta=3.25e+0 (tol=1.01e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=5.35e-12 (tol=1.00e-9), delta=3.25e-12 (tol=1.01e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.25e+0 (tol=1.00e-9), delta=3.25e+0 (tol=1.01e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=5.35e-12 (tol=1.00e-9), delta=3.25e-12 (tol=1.01e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.25e+0 (tol=1.00e-9), delta=3.25e+0 (tol=1.01e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 5x5 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=5.35e-12 (tol=1.00e-9), delta=3.25e-12 (tol=1.01e-6), converged=true
+   >>> PHYSICAL_CHECK: solution_size=6, nodes=4
+   >>> PHYSICAL_CHECK: voltage_sources_found=2
+   >>> PHYSICAL_CHECK: zero_count=2/4, max_V=12.000000V
+   >>> PHYSICAL_CHECK_RESULT: PASS (non_zero=2, max_V=12.000V)
+??Simulation converged successfully!
+??Exception during simulation: Cannot read properties of undefined (reading 'vout')
+TypeError: Cannot read properties of undefined (reading 'vout')
+    at testMosfetSwitch (C:\Aking\AkingSPICE\test_ngdevices_cjs.js:138:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runAllTests (C:\Aking\AkingSPICE\test_ngdevices_cjs.js:194:20)
+
+??????????????????????????????????????????????????????????????
+?? ??Some tests FAILED                                     ????????????????????????????????????????????????????????????????

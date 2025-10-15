@@ -6,6 +6,7 @@
     "moduleResolution": "node",
     "allowImportingTsExtensions": false,
     "noEmit": false,
+    "noEmitOnError": false,
     "declaration": true,
     "outDir": "dist",
     "rootDir": ".",

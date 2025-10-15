@@ -1,0 +1,80 @@
+* MOSFET + RL Circuit Reference Test
+* 用於產生參考波形，與 AkingSPICE 對比
+
+.title MOSFET RL Circuit Reference
+
+* 電源
+VDD 1 0 DC 12
+VGATE 2 0 DC 5
+
+* MOSFET (Level 1, 與 NgMosfet 相同參數)
+M1 3 2 4 0 NMOS_MODEL W=10u L=10u
+
+.model NMOS_MODEL NMOS (
++ VTO=1.0
++ KP=10m
++ LAMBDA=0.01
++ PHI=0.6
++ GAMMA=0.3
++ )
+
+* 負載電路: VDD → RD → M1(D-S) → L → RS → GND
+RD 1 3 5      ; 上側電阻 5Ω
+L1 4 5 100u   ; 電感 100µH
+RS 5 0 5      ; 下側電阻 5Ω
+
+* 分析
+.op
+.tran 0.1u 50u
+
+* 輸出控制
+.control
+run
+echo "============================================================"
+echo "ngspice Reference Simulation Results"
+echo "============================================================"
+echo ""
+echo "DC Operating Point:"
+print v(1) v(2) v(3) v(4) v(5)
+print @m1[id] @l1[i]
+echo ""
+echo "Key Time Points:"
+echo ""
+echo "At t = 10us (1 tau):"
+meas tran i_1tau find i(L1) at=10u
+meas tran v_1tau find v(4) at=10u
+echo ""
+echo "At t = 20us (2 tau):"
+meas tran i_2tau find i(L1) at=20u
+meas tran v_2tau find v(4) at=20u
+echo ""
+echo "At t = 30us (3 tau):"
+meas tran i_3tau find i(L1) at=30u
+meas tran v_3tau find v(4) at=30u
+echo ""
+echo "At t = 50us (5 tau):"
+meas tran i_5tau find i(L1) at=50u
+meas tran v_5tau find v(4) at=50u
+echo ""
+echo "Steady State (average from 45us to 50us):"
+meas tran i_steady avg i(L1) from=45u to=50u
+echo ""
+echo "Theoretical Values:"
+echo "  tau = L/R = 100u/10 = 10us"
+echo "  I_steady = VDD/R = 12/10 = 1.2A"
+echo "  I(1*tau) = 1.2 * (1 - exp(-1)) = 0.7585A"
+echo "  I(2*tau) = 1.2 * (1 - exp(-2)) = 1.0376A"
+echo "  I(3*tau) = 1.2 * (1 - exp(-3)) = 1.1402A"
+echo "  I(5*tau) = 1.2 * (1 - exp(-5)) = 1.1919A"
+echo ""
+echo "Export data for plotting..."
+set wr_singlescale
+set wr_vecnames
+option numdgt=7
+wrdata mosfet_rl_ngspice_reference.txt time v(1) v(3) v(4) i(L1) @m1[id]
+echo "Data written to: mosfet_rl_ngspice_reference.txt"
+echo ""
+quit
+.endc
+
+.end

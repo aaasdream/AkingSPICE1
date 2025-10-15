@@ -86,7 +86,55 @@ export class NgMosfet implements ComponentInterface {
   }
   
   /**
-   * Limit FET voltages to prevent numerical issues
+   * Limit drain-source voltage (DEVlimvds from ngspice devsup.c)
+   */
+  private limvds(vnew: number, vold: number): number {
+    if (vold >= 3.5) {
+      if (vnew > vold) {
+        vnew = Math.min(vnew, 3 * vold + 2);
+      } else {
+        if (vnew < 3.5) {
+          vnew = Math.max(vnew, 2);
+        }
+      }
+    } else {
+      if (vnew > vold) {
+        vnew = Math.min(vnew, 4);
+      } else {
+        vnew = Math.max(vnew, -0.5);
+      }
+    }
+    return vnew;
+  }
+  
+  /**
+   * Limit PN junction voltage (DEVpnjlim from ngspice devsup.c)
+   */
+  private pnjlim(vnew: number, vold: number, vt: number, vcrit: number): number {
+    if (vnew > vcrit && Math.abs(vnew - vold) > vt + vt) {
+      if (vold > 0) {
+        const arg = 1 + (vnew - vold) / vt;
+        if (arg > 0) {
+          vnew = vold + vt * Math.log(arg);
+        } else {
+          vnew = vcrit;
+        }
+      } else {
+        vnew = vt * Math.log(vnew / vt);
+      }
+    } else {
+      if (vnew < 0) {
+        const arg = vold > 0 ? -1 - vold : -1;
+        if (vnew < arg) {
+          vnew = arg;
+        }
+      }
+    }
+    return vnew;
+  }
+  
+  /**
+   * Limit FET voltages to prevent numerical issues (DEVfetlim from ngspice devsup.c)
    */
   private fetlim(vnew: number, vold: number, vto: number): number {
     const vtsthi = Math.abs(2 * (vold - vto)) + 2;
@@ -174,9 +222,19 @@ export class NgMosfet implements ComponentInterface {
       vbs_new = 0;
     }
     
-    // Limit voltages for convergence
+    // Limit voltages for convergence (ngspice pattern from mos1load.c)
+    // Calculate thermal voltage and critical voltage for pnjlim
+    const vt = this.CONSTKoverQ * this.TEMP;
+    const vcrit = vt * Math.log(vt / (Math.sqrt(2) * 1e-14));
+    
     vgs_new = this.fetlim(vgs_new, this.vgs, this.VTO);
-    vds_new = Math.max(vds_new, 0);  // Ensure vds >= 0
+    vds_new = this.limvds(vds_new, this.vds);
+    vbs_new = this.pnjlim(vbs_new, this.vbs, vt, vcrit);
+    
+    // Store limited voltages
+    this.vgs = vgs_new;
+    this.vds = vds_new;
+    this.vbs = vbs_new;
     
     // Determine operating mode
     if (vds_new >= 0) {
@@ -231,10 +289,7 @@ export class NgMosfet implements ComponentInterface {
       }
     }
     
-    // Store state
-    this.vgs = vgs_new;
-    this.vds = vds_new;
-    this.vbs = vbs_new;
+    // Store state (voltages already stored after limiting above)
     this.id = id;
     this.gm = gm;
     this.gds = gds;

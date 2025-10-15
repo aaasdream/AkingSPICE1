@@ -66,6 +66,13 @@ export class Inductor implements ComponentInterface {
    * 这使得 Req = L/dt 趋近于 0，将电感模拟为理想短路。
    */
   assemble(context: AssemblyContext): void {
+    // 🔍 除錯: 檢查 context
+    if (!(global as any)._inductorDebugCount2) (global as any)._inductorDebugCount2 = 0;
+    if ((global as any)._inductorDebugCount2 < 3) {
+      console.log(`[${this.name} assemble entry #${(global as any)._inductorDebugCount2}] R_coeff=${context.R_coeff}, dt=${context.dt}, prevSol=${!!context.previousSolutionVector}`);
+      (global as any)._inductorDebugCount2++;
+    }
+    
     const { matrix, rhs, nodeMap, dt, previousSolutionVector, getExtraVariableIndex } = context;
     const n1 = nodeMap.get(this.nodes[0]);
     const n2 = nodeMap.get(this.nodes[1]);
@@ -107,10 +114,18 @@ export class Inductor implements ComponentInterface {
 
       Req = this._inductance * context.R_coeff;
 
-      // 等效电压源 V_eq = R_eq * I_prev
-      // 或者 V_eq = L * V_coeff (如果積分器提供了 V_coeff)
-      // 目前 V_coeff 為 0，所以使用簡化計算
-      Veq = Req * previousCurrent;
+      // 等效电压源 V_eq (ngspice 公式)
+      // 對於 Trapezoidal Order 1: Veq = -Req * i_prev
+      // 對於 Trapezoidal Order 2: Veq 計算更複雜，但目前簡化為 -Req * i_prev
+      // 注意：ngspice 的 ceq = ccap - CKTag[0] * qcap，產生負號
+      Veq = -Req * previousCurrent;  // 🔧 修正：加上負號！
+      
+      // 🔍 除錯輸出 (前5次)
+      if (!(global as any)._inductorDebugCount) (global as any)._inductorDebugCount = 0;
+      if ((global as any)._inductorDebugCount < 5) {
+        console.log(`[${this.name} assemble #${(global as any)._inductorDebugCount}] t=${context.currentTime?.toExponential(3)}, dt=${dt.toExponential(3)}, i_prev=${previousCurrent.toExponential(3)}A, Req=${Req.toExponential(3)}Ω, Veq=${Veq.toExponential(3)}V, R_coeff=${context.R_coeff?.toExponential(3)}`);
+        (global as any)._inductorDebugCount++;
+      }
     } else {
       // DC 分析或初始時間點：電感視為短路
       // 使用一个极小的电阻来保证数值稳定性，而不是理想的0电阻

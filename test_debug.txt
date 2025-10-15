@@ -1,0 +1,121 @@
+============================================================
+⚡ MOSFET RL 階躍響應測試
+============================================================
+
+🎯 測試場景: MOSFET 在 t=0 時從 OFF → ON
+   VDD = 12V
+   R = 10Ω
+   L = 100µH
+   模擬時間 = 10µs
+
+🔧 電路: VDD → RD → MOSFET(D-S) → L → RS → GND
+
+✅ 電路建立完成，開始模擬...
+
+📊 開始 DC 工作點分析...
+🔄 非線性電路，優先嘗試源步進...
+📊 源步進：找到 2 個可縮放的源
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 0] residual=0.00e+0 (tol=1.00e-4), delta=0.00e+0 (tol=1.00e-3), converged=true
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 0] residual=3.25e+0 (tol=1.00e-4), delta=4.42e+0 (tol=1.00e-3), converged=false
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 1] residual=4.55e-4 (tol=1.00e-4), delta=2.82e-3 (tol=1.00e-3), converged=false
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 2] residual=2.28e-6 (tol=1.00e-4), delta=1.41e-5 (tol=1.00e-3), converged=true
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 0] residual=3.25e+0 (tol=1.00e-4), delta=4.41e+0 (tol=1.00e-3), converged=false
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 1] residual=1.17e-2 (tol=1.00e-4), delta=7.26e-2 (tol=1.00e-3), converged=false
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 2] residual=3.51e-4 (tol=1.00e-4), delta=2.17e-3 (tol=1.00e-3), converged=false
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 0] residual=3.25e+0 (tol=1.00e-4), delta=4.36e+0 (tol=1.00e-3), converged=false
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 1] residual=1.22e-2 (tol=1.00e-4), delta=7.52e-2 (tol=1.00e-3), converged=false
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 2] residual=6.54e-4 (tol=1.00e-4), delta=4.05e-3 (tol=1.00e-3), converged=false
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 0] residual=3.25e+0 (tol=1.00e-4), delta=4.31e+0 (tol=1.00e-3), converged=false
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 1] residual=1.31e-2 (tol=1.00e-4), delta=8.06e-2 (tol=1.00e-3), converged=false
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+  [DC Iter 2] residual=9.85e-4 (tol=1.00e-4), delta=6.08e-3 (tol=1.00e-3), converged=false
+🧮 使用 numeric 求解器 求解 8x8 線性系統...
+📊 使用 numeric.js 求解稠密線性系統...
+✅ numeric.js 求解成功
+   >>> PHYSICAL_CHECK: solution_size=9, nodes=6
+   >>> PHYSICAL_CHECK: voltage_sources_found=2
+   >>> PHYSICAL_CHECK: zero_count=1/6, max_V=12.000000V
+   >>> PHYSICAL_CHECK_RESULT: PASS (non_zero=5, max_V=12.000V)
+🔄 Generalized-α integrator restarted with consistent DC operating point.
+============================================================
+✅ 模擬成功完成
+============================================================
+
+📊 模擬統計：
+   總執行時間: 30ms (0.03s)
+   最終時間: 1.064e-5s
+   總步數: 23
+   收斂率: 100.0%
+   平均步長時間: 1224665.22µs
+
+📈 波形數據：
+   採樣點數: 23
+   時間範圍: [1.000e-10, 1.064e-5]
+
+🔌 電感電流分析:
+   起始: 8.253e-2 A
+   峰值: 8.253e-2 A
+   終值: 8.253e-2 A
+   理論終值: 1.200e+0 A
+   誤差: 93.1%
+   ⚠️  誤差較大 (>20%)
+
+⏱️  關鍵時間點電流:
+   t=1.000e-10s: I=8.253e-2A
+   t=7.000e-10s: I=8.253e-2A
+   t=3.100e-9s: I=8.253e-2A
+   t=1.270e-8s: I=8.253e-2A
+   t=5.110e-8s: I=8.253e-2A
+   t=2.047e-7s: I=8.253e-2A
+   t=8.191e-7s: I=8.253e-2A
+   t=2.638e-6s: I=8.253e-2A
+   t=4.638e-6s: I=8.253e-2A
+   t=6.638e-6s: I=8.253e-2A
+   t=8.638e-6s: I=8.253e-2A
+   t=1.064e-5s: I=8.253e-2A
+
+============================================================

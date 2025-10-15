@@ -39,6 +39,8 @@ import type {
   Time
 } from '../../types/index';
 import { GeneralizedAlphaIntegrator } from '../integrator/generalized_alpha';
+import { BackwardEulerIntegrator } from '../integrator/backward_euler';
+import { TrapezoidalIntegrator } from '../integrator/trapezoidal';
 import { ExtraVariableIndexManager, ExtraVariableType } from '../mna/extra_variable_manager';
 // CHANGED: 导入统一的接口和新的类型守卫
 import { GeneralizedHomotopy, type IHomotopySystem } from '../../math/numerical/homotopy';
@@ -164,7 +166,7 @@ interface ScalableSource {
 export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper { // <--- 實現介面
   // 核心组件
   // @ts-ignore - 将在瞬态分析实现中使用
-  private readonly _integrator: GeneralizedAlphaIntegrator;
+  private _integrator: GeneralizedAlphaIntegrator | BackwardEulerIntegrator | TrapezoidalIntegrator;
   private readonly _eventDetector: EventDetector;
   // CHANGED: 设备容器现在接受任何 ComponentInterface
   private readonly _devices: Map<string, ComponentInterface> = new Map();
@@ -254,9 +256,14 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     });
 
     // 初始化积分器
-    this._integrator = new GeneralizedAlphaIntegrator({
-      spectralRadius: this._config.alphaf, // 使用正确的参数名
+    // 🔧 使用 Trapezoidal 積分器 (完全按照 ngspice 實現)
+    this._integrator = new TrapezoidalIntegrator({
+      initialTimeStep: this._config.initialTimeStep,
+      minTimeStep: this._config.minTimeStep,
+      maxTimeStep: this._config.maxTimeStep,
       tolerance: this._config.voltageToleranceAbs,
+      order: 2,  // Order 2 = 梯形法 (ngspice 默認)
+      xmu: 0.5,  // 標準梯形法參數
       maxNewtonIterations: this._config.maxNewtonIterations,
       verbose: this._config.verboseLogging
     });

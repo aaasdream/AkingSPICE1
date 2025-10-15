@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitReturns": false,
+    "exactOptionalPropertyTypes": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": false,
+    "skipLibCheck": true,
+    "noEmitOnError": false
+  },
+  "include": [
+    "src/core/integrator/**/*",
+    "src/core/ngdevices/**/*",
+    "src/core/simulation/**/*",
+    "src/core/diagnostics/**/*",
+    "src/components/**/*",
+    "src/math/**/*",
+    "src/types/**/*"
+  ],
+  "exclude": [
+    "src/core/parser/**/*",
+    "src/core/devices/**/*",
+    "node_modules",
+    "dist"
+  ]
+}

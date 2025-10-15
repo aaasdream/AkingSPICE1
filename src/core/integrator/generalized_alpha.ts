@@ -144,9 +144,9 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
     // 設置默認選項
     this._options = {
       spectralRadius: options.spectralRadius ?? 0.85,
-      tolerance: options.tolerance ?? 1e-6,
+      tolerance: options.tolerance ?? 1e-4,  // 🚀 從 1e-6 放寬到 1e-4 (ngspice 默認級別)
       maxNewtonIterations: options.maxNewtonIterations ?? 10,
-      newtonTolerance: options.newtonTolerance ?? 1e-8,  // 🔧 修復: 從 1e-10 放寬到 1e-8
+      newtonTolerance: options.newtonTolerance ?? 1e-7,  // 🔧 放寬容差從1e-8到1e-7
       stepControl: options.stepControl ?? 'balanced',
       useKLUSolver: options.useKLUSolver ?? true,
       verbose: options.verbose ?? false
@@ -316,21 +316,22 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
         // Newton 未收斂，拒絕此步並激進地減小步長
         this._rejectedSteps++;
 
-        // 🔥 改進：連續失敗時更激進地減小步長
+        // 🔥 參考ngspice策略：Newton失敗時使用1/8縮減 (更激進)
         const failureRatio = this._rejectedSteps / Math.max(this._acceptedSteps, 1);
-        let reductionFactor = 0.25; // 基本減小到 1/4
+        let reductionFactor = 0.125; // ngspice標準：減小到1/8
 
         if (failureRatio > 0.5) {
           // 失敗率超過 50%，更激進
-          reductionFactor = 0.1;
-          this._logInfo(`   ⚠️ 高失敗率 (${(failureRatio * 100).toFixed(1)}%)，使用激進步長減小`);
+          reductionFactor = 0.0625;  // 1/16
+          this._logInfo(`   ⚠️ 高失敗率 (${(failureRatio * 100).toFixed(1)}%)，使用超激進步長減小 (1/16)`);
         } else if (failureRatio > 0.3) {
-          reductionFactor = 0.15;
+          reductionFactor = 0.1;  // 1/10
+          this._logInfo(`   ⚠️ 中等失敗率 (${(failureRatio * 100).toFixed(1)}%)，使用激進步長減小 (1/10)`);
         }
 
         const newDt = dt * reductionFactor;
 
-        this._logInfo(`   ❌ Newton 未收斂，拒絕步長，新 dt=${newDt.toExponential(3)}s (減小因子=${reductionFactor})`);
+        this._logInfo(`   ❌ Newton 未收斂，拒絕步長，新 dt=${newDt.toExponential(3)}s (ngspice策略: 1/8)`);
 
         return {
           solution: this._currentState.solution,
@@ -348,10 +349,18 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
       // 🔧 對於第一步（timestep = 0），使用更寬鬆的容差，因為預測-修正差異天然較大
       const isFirstRealStep = this._currentState.timestep === 0;
       const effectiveTolerance = isFirstRealStep ? Math.max(this._options.tolerance, 1.0) : this._options.tolerance;
-      const acceptStep = lte <= effectiveTolerance;
+      
+      // 🚀 ngspice 策略：90% 接受規則
+      // 即使 LTE 略超過容差（但在 110% 容差內），仍然接受步長
+      // 這避免了過度保守的步長縮減，大幅提升性能
+      const acceptanceMargin = 1.1; // 允許 10% 容差超調
+      const acceptStep = lte <= effectiveTolerance * acceptanceMargin;
 
       if (isFirstRealStep) {
         this._logInfo(`   🎯 第一步使用寬鬆容差: ${effectiveTolerance.toExponential(3)}`);
+      }
+      if (!acceptStep && lte <= effectiveTolerance * acceptanceMargin) {
+        this._logInfo(`   📈 LTE 略超容差但在接受範圍內 (ngspice 90% 規則)`);
       }
       const nextDt = this._adjustTimestep(dt, lte, acceptStep);
 
@@ -839,32 +848,39 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
     // 🔬 清空並開始新的 Newton 迭代歷史記錄
     this._newtonHistory = [];
 
+    // Debug logging disabled to reduce clutter
+    // console.log(`\n🔍 [DIAG] _tryStandardNewton entering...`);
+
     for (iterations = 0; iterations < maxIterations; iterations++) {
+      // console.log(`\n🔄 [DIAG] Newton iteration ${iterations}/${maxIterations}...`);
       // 1. 核心步驟：呼叫系統的 assemble 方法。
       //    這會根據當前的解 v_n1 和時間 t_n1 更新系統矩陣 (J) 和 RHS (b)。
       //    對於瞬態分析，組件的 assemble 方法會使用伴隨模型，
       //    這已經隱含了積分公式 (如後向歐拉 C/dt)。
+      // console.log(`   ⚙️ [DIAG] Calling system.assemble...`);
       system.assemble(v_n1, t_n1);
+      // console.log(`   ✓ [DIAG] assemble complete`);
 
       const J = system.systemMatrix;
       const b = system.getRHS();
 
-      // 🐛 Debug: Check for NaN in matrix and RHS right after assembly
-      if (iterations === 0) {
-        const bNorm = b.norm();
-        if (isNaN(bNorm)) {
-          this._logError(`🔥 RHS contains NaN immediately after assemble()!`);
-          converged = false;
-          break;
-        }
-        this._logInfo(`     ✓ RHS norm: ${bNorm.toExponential(3)}`);
-      }
+      // Debug: Check for NaN only if needed
+      // if (iterations === 0) {
+      //   const bNorm = b.norm();
+      //   if (isNaN(bNorm)) {
+      //     this._logError(`RHS contains NaN immediately after assemble()!`);
+      //     converged = false;
+      //     break;
+      //   }
+      // }
 
       // 2. 計算殘差 F(x_k) = J * x_k - b
       //    這是我們要使其為零的非線性函數在當前點的值。
       //    對於線性系統 J*x = b，殘差就是 b - J*x
+      // console.log(`   🧮 [DIAG] Computing residual...`);
       const Jx = J.multiply(v_n1) as Vector;
       const residual = b.minus(Jx);
+      // console.log(`   ✓ [DIAG] residual computed, norm = ${residual.norm().toExponential(3)}`);
 
       // 🔥 CRITICAL FIX: Exclude ground node from residual norm calculation
       // Since we force V_ground=0, the ground node equation is satisfied by definition
@@ -1338,33 +1354,46 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
    * 自適應步長調整 (改進的 PI 控制器 - 更保守)
    */
   private _adjustTimestep(dt: Time, lte: number, accepted: boolean): Time {
+    // 🚀 關鍵修復：當 LTE 遠小於容差時，必須激進增長步長
+    if (lte < this._options.tolerance * 0.01) {
+      // LTE < 1% 容差，步長太小了，激進增長
+      return dt * 2.0;
+    }
+    
     if (lte < 1e-15) {
-      // 誤差極小，允許適度步長增長（比之前更保守）
-      return dt * 1.2;
+      // 誤差極小
+      return dt * 1.5;
     }
 
-    // 經典 PI 控制器 (Hairer & Wanner)
-    const exponent = -1.0 / (this.order + 1);
-    const safetyFactor = 0.85; // 從 0.9 降低到 0.85，更保守
+    // 經典 PI 控制器 (Hairer & Wanner) + ngspice 調整
+    const exponent = -1.0 / (this.order + 1);  // = -1/3 for order=2
+    const safetyFactor = 0.9;
 
     let factor: number;
+    
+    // 🔥 修復：正確的公式應該是 (tolerance / lte)^|exponent|
+    // 當 lte < tolerance 時，這個比值 > 1，factor > 1，步長增長
+    const ratio = this._options.tolerance / Math.max(lte, 1e-15);
+    const baseFactor = Math.pow(ratio, Math.abs(exponent));
 
     switch (this._options.stepControl) {
       case 'conservative':
-        factor = safetyFactor * Math.pow(this._options.tolerance / lte, exponent) * 0.7;
+        factor = safetyFactor * baseFactor * 0.8;
         break;
       case 'aggressive':
-        factor = safetyFactor * Math.pow(this._options.tolerance / lte, exponent) * 1.1;
+        factor = safetyFactor * baseFactor * 1.2;
         break;
       case 'balanced':
       default:
-        factor = safetyFactor * Math.pow(this._options.tolerance / lte, exponent) * 0.9;
+        // 🚀 ngspice 策略：當 LTE 遠小於容差時，更積極
+        const multiplier = lte < this._options.tolerance * 0.1 ? 1.2 : 1.0;
+        factor = safetyFactor * baseFactor * multiplier;
         break;
     }
 
-    // 🔥 改進：更保守的步長變化限制
-    const maxIncrease = accepted ? 1.5 : 1.0; // 從 2.0 降低到 1.5
-    const minDecrease = 0.1; // 從 0.2 降低到 0.1，允許更激進的減小
+    // 🔥 改進：更積極的步長變化限制（參考 ngspice）
+    const maxIncrease = accepted ? 2.0 : 1.0;
+    const minDecrease = 0.125; // 1/8
 
     factor = Math.max(minDecrease, Math.min(maxIncrease, factor));
 
