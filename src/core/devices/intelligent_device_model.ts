@@ -382,42 +382,42 @@ export interface MOSFETParameters extends Record<string, number> {
   readonly Imax: number;     // 最大工作电流 (A)
 
   // --- BSIM4 核心直流参数 ---
-  readonly VTH0?: number;     // 零偏压阈值电压 (V)
-  readonly K1?: number;       // 体偏效应系数 (V^0.5)
-  readonly K2?: number;       // 二次体偏效应系数
-  readonly U0?: number;       // 低场迁移率 (cm²/V·s)
-  readonly UA?: number;       // 迁移率退化系数 (m/V)
-  readonly RDW?: number;      // 漏源电阻宽度系数 (Ω·μm)
-  readonly RSW?: number;      // 源极电阻宽度系数 (Ω·μm)
+  readonly VTH0: number;     // 零偏压阈值电压 (V)
+  readonly K1: number;       // 体偏效应系数 (V^0.5)
+  readonly K2: number;       // 二次体偏效应系数
+  readonly U0: number;       // 低场迁移率 (cm²/V·s)
+  readonly UA: number;       // 迁移率退化系数 (m/V)
+  readonly RDW: number;      // 漏源电阻宽度系数 (Ω·μm)
+  readonly RSW: number;      // 源极电阻宽度系数 (Ω·μm)
 
   // --- BSIM4 关键寄生电容参数 ---
-  readonly CGSO?: number;     // 栅源交叠电容 (F/m)
-  readonly CGDO?: number;     // 栅漏交叠电容 (F/m)
-  readonly CGBO?: number;     // 栅体交叠电容 (F/m)
-  readonly CJ?: number;       // 零偏压结电容 (F/m²)
-  readonly CJSW?: number;     // 零偏压侧壁结电容 (F/m)
-  readonly PB?: number;       // 体结内建电位 (V)
-  readonly MJ?: number;       // 体结电容分级系数
+  readonly CGSO: number;     // 栅源交叠电容 (F/m)
+  readonly CGDO: number;     // 栅漏交叠电容 (F/m)
+  readonly CGBO: number;     // 栅体交叠电容 (F/m)
+  readonly CJ: number;       // 零偏压结电容 (F/m²)
+  readonly CJSW: number;     // 零偏压侧壁结电容 (F/m)
+  readonly PB: number;       // 体结内建电位 (V)
+  readonly MJ: number;       // 体结电容分级系数
 
   // --- BSIM4 体二极体参数 ---
-  readonly JS?: number;       // 体二极体饱和电流密度 (A/m²)
-  readonly JSW?: number;      // 侧壁饱和电流密度 (A/m)
-  readonly N?: number;        // 体二极体理想因子
-  readonly TT?: number;       // 体二极体渡越时间 (s)
-  readonly XTI?: number;      // 饱和电流温度指数
+  readonly JS: number;       // 体二极体饱和电流密度 (A/m²)
+  readonly JSW: number;      // 侧壁饱和电流密度 (A/m)
+  readonly N: number;        // 体二极体理想因子
+  readonly TT: number;       // 体二极体渡越时间 (s)
+  readonly XTI: number;      // 饱和电流温度指数
 
   // --- 几何参数 ---
-  readonly W?: number;        // 沟道宽度 (m)
-  readonly L?: number;        // 沟道长度 (m)
-  readonly AD?: number;       // 漏极面积 (m²)
-  readonly AS?: number;       // 源极面积 (m²)
-  readonly PD?: number;       // 漏极周长 (m)
-  readonly PS?: number;       // 源极周长 (m)
+  readonly W: number;        // 沟道宽度 (m)
+  readonly L: number;        // 沟道长度 (m)
+  readonly AD: number;       // 漏极面积 (m²)
+  readonly AS: number;       // 源极面积 (m²)
+  readonly PD: number;       // 漏极周长 (m)
+  readonly PS: number;       // 源极周长 (m)
 
   // --- 温度参数 ---
-  readonly TNOM?: number;     // 参数提取温度 (°C)
-  readonly KT1?: number;      // 阈值电压温度系数 (V)
-  readonly KT2?: number;      // 阈值电压温度系数 (dimensionless)
+  readonly TNOM: number;     // 参数提取温度 (°C)
+  readonly KT1: number;      // 阈值电压温度系数 (V)
+  readonly KT2: number;      // 阈值电压温度系数 (dimensionless)
 }
 
 export interface DiodeParameters extends Record<string, number> {

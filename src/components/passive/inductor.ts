@@ -22,8 +22,15 @@ import { AssemblyContext, ComponentInfo, ComponentInterface, ValidationResult } 
 export class Inductor implements ComponentInterface {
   readonly type = 'L';
 
-  // 电流支路索引 (用于扩展 MNA)
-  private _currentIndex?: number;
+  // 额外变量索引 (电流)
+  private _extraVarIndices: number[] = [];
+
+  /**
+   * 🔢 Get current index (for backward compatibility)
+   */
+  private get _currentIndex(): number | undefined {
+    return this._extraVarIndices[0];
+  }
 
   constructor(
     public readonly name: string,
@@ -73,9 +80,9 @@ export class Inductor implements ComponentInterface {
       if (index === undefined) {
         throw new Error(`无法为电感 ${this.name} 获取电流支路索引`);
       }
-      this._currentIndex = index;
+      this.setExtraVariableIndices([index]);
     }
-    const iL_idx = this._currentIndex;
+    const iL_idx = this._currentIndex!;
 
     // 2. 计算伴随模型参数
     let Req: number;
@@ -167,21 +174,39 @@ export class Inductor implements ComponentInterface {
       if (index === undefined) {
         throw new Error(`无法为电感 ${this.name} 获取电流支路索引`);
       }
-      this._currentIndex = index;
+      this.setExtraVariableIndices([index]);
     }
 
     // 从解向量中直接读取电流值
-    return voltages.get(this._currentIndex);
+    return voltages.get(this._currentIndex!);
   }
 
   /**
    * 🔢 设置电流支路索引
+   * @deprecated Use setExtraVariableIndices instead
    */
   setCurrentIndex(index: number): void {
-    if (index < 0) {
-      throw new Error(`电感 ${this.name} 的电流索引必须为非负数: ${index}`);
+    this.setExtraVariableIndices([index]);
+  }
+
+  /**
+   * 🔢 统一设置额外变量索引
+   */
+  setExtraVariableIndices(indices: number[]): void {
+    if (indices.length !== 1) {
+      throw new Error(`Inductor ${this.name} requires exactly 1 extra variable index (current).`);
     }
-    this._currentIndex = index;
+    if (indices[0]! < 0) {
+      throw new Error(`电感 ${this.name} 的电流索引必须为非负数: ${indices[0]}`);
+    }
+    this._extraVarIndices = indices;
+  }
+
+  /**
+   * 🔢 获取额外变量数量
+   */
+  getExtraVariableCount(): number {
+    return 1; // 电感需要1个额外变量 (电流)
   }
 
   /**
@@ -269,13 +294,6 @@ export class Inductor implements ComponentInterface {
     return 0.5 * this._inductance * current * current;
   }
 
-
-  /**
-   * 🏃‍♂️ 获取需要的额外变量数量
-   */
-  getExtraVariableCount(): number {
-    return 1; // 需要一个电流变量
-  }
 
   /**
    * 🔍 调试信息

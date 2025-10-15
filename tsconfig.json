@@ -13,8 +13,8 @@
     // 嚴格模式 - 確保代碼質量
     "strict": true,
     "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,  // Allow unused local variables during development
+    "noUnusedParameters": false,  // Allow unused parameters during development
     "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,

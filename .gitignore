@@ -8,6 +8,7 @@ yarn-error.log*
 lib-dist/
 dist/
 build/
+ngspice/
 
 # IDE and editor files
 .vscode/

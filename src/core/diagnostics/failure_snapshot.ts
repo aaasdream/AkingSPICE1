@@ -604,7 +604,7 @@ if __name__ == '__main__':
       // 按前綴分組
       for (const file of files) {
         const match = file.match(/^(failure_[^_]+_t[^_]+_[^_]+)/);
-        if (match) {
+        if (match && match[1]) {
           const prefix = match[1];
           if (!snapshots.has(prefix)) {
             snapshots.set(prefix, []);

@@ -7,7 +7,14 @@
 ### 1.0 專案概述
 
 #### 1.1 專案定位
-AkingSPICE 2.1 是一個專為現代電力電子應用設計的高性能、通用電路仿真引擎。它旨在解決高頻開關電路中常見的數值剛性 (Stiffness) 和收斂性挑戰，提供一個兼具工業級魯棒性與學術級靈活性的仿真平台。
+AkingSPICE 2.1 是一個專為現代電力電子應用設計的高性能、通用電路仿真引擎。它旨在前端網頁可以讓使用者輕鬆構建和模擬各種電力電子電路，從簡單的 DC-DC 轉換器到複雜的多相逆變器。核心目標包括：
+*   **通用性**: 支持任意拓撲結構的 SPICE 電路。並且可以在網頁端撰寫控制器，控制目前所模擬的電路，以達到學習控制系統的目的。
+*   **可擴展性**: 易於添加新元件和模型。
+
+
+
+
+
 
 #### 1.2 核心技術支柱
 *   **擴展修正節點分析 (Extended MNA)**: 作為核心數學框架，通過引入額外電流變數，原生支持電感、電壓源、變壓器等元件。`ExtraVariableIndexManager` 模塊專職管理此過程。
@@ -24,6 +31,7 @@ AkingSPICE 2.1 是一個專為現代電力電子應用設計的高性能、通�
 **SPICE 網表解析器** → **仿真引擎 (`CircuitSimulationEngine`)** → **MNA 系統構建 (含 `ExtraVariableManager`)** → **DC 分析求解器 (含 Homotopy)** → **瞬態分析求解器 (GeneralizedAlphaIntegrator + Newton-Raphson 循環)** → **稀疏矩陣求解器** → **波形數據存儲**。
 
 #### 2.2 目錄結構與模塊職責
+
 
 ```
 AkingSPICE/
@@ -50,6 +58,8 @@ AkingSPICE/
     │
     └── applications/            # 🎯 具體應用 (架構預留) - 使用核心引擎和元件庫構建特定電路
 ```
+
+與src相同目錄下的ngspic 是 ngspic的原始碼，我們將要參考ngspic的部分程式碼來做修改我們的src
 
 ### 3.0 核心抽象與設計
 
@@ -85,7 +95,7 @@ AkingSPICE/
       hasEvents?(): boolean;
       getEventFunctions?(): { type: string, condition: (v: IVector) => number }[];
       handleEvent?(event: IEvent, context: AssemblyContext): void;
-      
+
       validate(): ValidationResult;
       getInfo(): ComponentInfo;
     }
@@ -181,3 +191,8 @@ AkingSPICE 2.1 的成功由以下幾點衡量：
 *   ✅ **解耦性**: 核心仿真算法（積分、求解）與具體的元件物理模型完全分離。
 *   ✅ **魯棒性**: 對於電力電子中常見的剛性、強非線性問題具有工業級的收斂性和數值穩定性。
 *   ✅ **高性能**: 能夠利用稀疏數據結構和高效求解器處理大規模電路（千節點級別）。
+
+
+
+我們現在非線性元件 已經經過長時間的失敗與嘗試，始終沒有辦法收斂，如今我們想要全面轉向ngspice的作法讓我們的模擬能夠有基礎的功能，所以我們先讓二極體，mosfet 能夠運作起來，方法完全參考ngspice，ngspic原始碼在./ngspice給你參考，我們建立一個資料夾叫做ngdevices 裡面存放我們仿製ng的非線性元件，為了能夠和我們原本的架構能夠結合，我們建立一個ngdevicefactory.ts 來當作工廠，讓我們能夠用統一的方式來建立元件，這樣我們就能夠慢慢把原本的非線性元件給替換掉，讓他與原本的架構能夠相容，
+所以我們先建立ngdevicefactory.ts 以及二極體與mosfet，使用最簡單的電路測試是否能夠模擬收斂非線性元件。過程盡量不要讓我介入，不要使用會讓VSCODE阻擋的危險指令，導致需要我來allow讓運作中斷。執行程式也需要下自動結束的參數，不要讓程式結束時卡住需要按下q才能離開導致無法繼續開發。

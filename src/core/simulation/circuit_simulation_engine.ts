@@ -368,19 +368,35 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       this._solutionVector = new Vector(totalSystemSize);
       this._previousSolutionVector = new Vector(totalSystemSize);  // 🔧 重新初始化历史解向量
 
-      // 4. 第二次掃描，為元件分配索引
+      // 4. 第二次掃描，為元件分配索引 (統一使用 setExtraVariableIndices)
       for (const device of this._devices.values()) {
         if ('getExtraVariableCount' in device && typeof (device as any).getExtraVariableCount === 'function') {
-          if (device.type === 'V' || device.type === 'L') {
-            const index = this._extraVariableManager.allocateIndex(
-              device.type === 'V' ? ExtraVariableType.VOLTAGE_SOURCE_CURRENT : ExtraVariableType.INDUCTOR_CURRENT,
-              device.name
-            );
-            if ('setCurrentIndex' in device) (device as any).setCurrentIndex(index);
+          const count = (device as any).getExtraVariableCount();
+          const indices: number[] = [];
+
+          if (device.type === 'V') {
+            // 電壓源：1個額外變量（電流）
+            indices.push(this._extraVariableManager.allocateIndex(
+              ExtraVariableType.VOLTAGE_SOURCE_CURRENT, device.name
+            ));
+          } else if (device.type === 'L') {
+            // 電感：1個額外變量（電流）
+            indices.push(this._extraVariableManager.allocateIndex(
+              ExtraVariableType.INDUCTOR_CURRENT, device.name
+            ));
           } else if (device.type === 'K') {
-            const pIdx = this._extraVariableManager.allocateIndex(ExtraVariableType.TRANSFORMER_PRIMARY_CURRENT, device.name);
-            const sIdx = this._extraVariableManager.allocateIndex(ExtraVariableType.TRANSFORMER_SECONDARY_CURRENT, device.name);
-            if ('setCurrentIndices' in device) (device as any).setCurrentIndices(pIdx, sIdx);
+            // 變壓器：2個額外變量（初級電流 + 次級電流）
+            indices.push(this._extraVariableManager.allocateIndex(
+              ExtraVariableType.TRANSFORMER_PRIMARY_CURRENT, device.name
+            ));
+            indices.push(this._extraVariableManager.allocateIndex(
+              ExtraVariableType.TRANSFORMER_SECONDARY_CURRENT, device.name
+            ));
+          }
+
+          // 統一調用 setExtraVariableIndices
+          if ('setExtraVariableIndices' in device && typeof (device as any).setExtraVariableIndices === 'function') {
+            (device as any).setExtraVariableIndices(indices);
           }
         }
       }
@@ -430,7 +446,8 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       // 在初始几个时间步使用渐进的 gmin 来改善矩阵条件数
       this._transientGminSteps = 3;  // 前3步使用 gmin
       this._transientGminCurrent = 1e-6;  // 初始 gmin = 1µS
-      this._logEvent('INIT', undefined, `🛡️ Transient Gmin Stepping enabled: ${this._transientGminSteps} steps, initial gmin=${this._transientGminCurrent.toExponential(2)}S`);    } catch (error) {
+      this._logEvent('INIT', undefined, `🛡️ Transient Gmin Stepping enabled: ${this._transientGminSteps} steps, initial gmin=${this._transientGminCurrent.toExponential(2)}S`);
+    } catch (error) {
       this._state = SimulationState.FAILED;
       // 增加更详细的错误日志
       console.error('Detailed error in _initializeSimulation:', error);
@@ -457,7 +474,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       // 策略：第一步使用极小步长，让积分器自然增长到目标步长
       if (this._stepCount === 0 && this._currentTimeStep > 1e-10) {
         const SMOOTH_START_DT = Math.max(this._config.minTimeStep, 1e-11); // 10ps
-        this._logEvent('INIT', undefined, 
+        this._logEvent('INIT', undefined,
           `🛡️ Smooth start: reducing first step from ${this._currentTimeStep.toExponential(2)}s to ${SMOOTH_START_DT.toExponential(2)}s (prevent companion model discontinuity)`);
         this._currentTimeStep = SMOOTH_START_DT;
       }
@@ -721,27 +738,40 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     // 这可以避免在 v=0 时的数值奇点（例如，在半导体器件模型中）。
     this._solutionVector.fill(1e-6);
 
-    // 步骤 1: Gmin Stepping (作为首选的鲁棒方法)
-    console.log('🔄 优先尝试 Gmin Stepping...');
-    let dcResult = await this._gminSteppingHomotopy();
-    if (dcResult) {
-      this._logEvent('dc_converged', undefined, 'Gmin Stepping 收敛');
-      return;
+    // 🔥 新增：檢測是否有非線性元件
+    const hasNonlinear = this._hasNonlinearDevices();
+    if (!hasNonlinear) {
+      console.log('📐 檢測到純線性電路，直接使用標準求解器...');
+      const dcResult = await this._solveDCNewtonRaphson(0); // gmin=0 for linear circuits
+      if (dcResult) {
+        this._logEvent('dc_converged', undefined, '線性電路直接求解收斂');
+        return;
+      } else {
+        console.error('❌ 線性電路求解失敗！');
+        throw new Error('Linear circuit DC analysis failed - this should not happen');
+      }
     }
 
-    // 步骤 2: 源步进 (作为备用方法)
-    console.log('🔄 Gmin Stepping 失败，尝试源步进...');
-    // 在尝试源步进之前，重置解向量，因为 Gmin 可能已将其带入一个不好的区域
-    this._solutionVector.fill(1e-6);
-    dcResult = await this._sourceSteppingHomotopy();
-    console.log(`📊 源步进結果: ${dcResult ? '成功' : '失敗'}`);
+    // 🔥 步骤 1: 源步进 (作为首選方法 - 對二極體更穩健)
+    console.log('🔄 非線性電路，優先嘗試源步進...');
+    let dcResult = await this._sourceSteppingHomotopy();
     if (dcResult) {
       this._logEvent('dc_converged', undefined, '源步进收敛');
       return;
     }
 
+    // 步骤 2: Gmin Stepping (作为備用方法)
+    console.log('🔄 源步進失敗，嘗試 Gmin Stepping...');
+    this._solutionVector.fill(1e-6); // 重置解向量
+    dcResult = await this._gminSteppingHomotopy();
+    console.log(`📊 Gmin Stepping 結果: ${dcResult ? '成功' : '失敗'}`);
+    if (dcResult) {
+      this._logEvent('dc_converged', undefined, 'Gmin Stepping 收敛');
+      return;
+    }
+
     // 步骤 3: 标准 Newton-Raphson (最后的尝试)
-    console.log('🔄 源步进失败，最后尝试标准 Newton...');
+    console.log('🔄 Gmin Stepping 失败，最后尝试标准 Newton...');
     this._solutionVector.fill(1e-6); // 再次重置
     dcResult = await this._solveDCNewtonRaphson();
     console.log(`📊 標準 Newton 結果: ${dcResult ? '成功' : '失敗'}`);
@@ -1174,12 +1204,39 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
   // End of MCAS Implementation
   // ==================================================================================
 
+  /**
+   * 🔥 新增：檢測電路中是否包含非線性元件
+   * 用於決定是否需要 Gmin Stepping 等複雜收斂策略
+   */
+  private _hasNonlinearDevices(): boolean {
+    for (const device of this._devices.values()) {
+      const deviceType = device.constructor.name;
+      // 檢測常見的非線性元件類型
+      if (deviceType.includes('Diode') || 
+          deviceType.includes('MOSFET') || 
+          deviceType.includes('BJT') ||
+          deviceType.includes('JFET') ||
+          deviceType.includes('Thyristor') ||
+          deviceType.includes('NgDiode') ||
+          deviceType.includes('NgMosfet')) {
+        return true;
+      }
+      // 也可以檢查是否實現了 limitUpdate 方法（非線性元件的特徵）
+      if (typeof (device as any).limitUpdate === 'function') {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // 新方法: Gmin Stepping (DC 初始化专用)
   private async _gminSteppingHomotopy(): Promise<boolean> {
-    // 🔥 增加初始 Gmin 以應對嚴重的浮動節點問題 (如 MOSFET 關閉狀態)
-    const gminSteps = 15;        // 增加步數以提高穩定性
-    const initialGmin = 1.0;     // 從 1Ω 開始 (非常強的耦合)
-    const finalGmin = 1e-12;     // 最終收斂到 1TΩ (接近理想開路)
+    // 🔥 優化參數以提高效率和穩定性
+    const gminSteps = 8;         // 減少步數 (原 15 → 8)
+    const initialGmin = 1e-3;    // 更合理的起始值 1mS (原 1S → 1mS)
+    const finalGmin = 1e-12;     // 最終收斂到 1pS (接近理想開路)
+
+    console.log(`🔄 開始 Gmin Stepping: ${gminSteps} 步, 從 ${initialGmin}S 到 ${finalGmin}S`);
 
     for (let step = 0; step <= gminSteps; step++) {
       const factor = step / gminSteps;
@@ -1192,8 +1249,9 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       const newtonResult = await this._solveDCNewtonRaphson(currentGmin);
 
       if (!newtonResult) {
-        this._logEvent('gmin_step_failed', undefined, `Newton-Raphson failed with Gmin = ${currentGmin.toExponential(2)}`);
-        return false;
+        this._logEvent('gmin_step_failed', undefined, `❌ Newton-Raphson failed with Gmin = ${currentGmin.toExponential(2)}`);
+        console.error(`❌ Gmin Stepping 在步驟 ${step}/${gminSteps} 失敗`);
+        return false;  // 🔥 快速失敗，不要無限重試
       }
     }
 
@@ -1481,6 +1539,13 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
       const residualConverged = residualNorm < this._config.currentToleranceAbs;
       const updateConverged = deltaNorm < (this._config.voltageToleranceRel * solutionNorm + this._config.voltageToleranceAbs);
 
+      if (this._config.verboseLogging || iterations < 3 || iterations > 15) {
+        // 前3次和超過15次時顯示詳細信息
+        console.log(`  [DC Iter ${iterations}] residual=${residualNorm.toExponential(2)} (tol=${this._config.currentToleranceAbs.toExponential(2)}), ` +
+                    `delta=${deltaNorm.toExponential(2)} (tol=${(this._config.voltageToleranceRel * solutionNorm + this._config.voltageToleranceAbs).toExponential(2)}), ` +
+                    `converged=${residualConverged && updateConverged}`);
+      }
+
       if (residualConverged && updateConverged) {
         this._logEvent('DC_NR_CONVERGED', undefined, `Newton-Raphson converged in ${iterations + 1} iterations.`);
         return true;
@@ -1490,6 +1555,7 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     }
 
     this._logEvent('DC_NR_FAILED', undefined, `Newton-Raphson exceeded max iterations (${this._config.maxNewtonIterations}).`);
+    console.error(`❌ Newton-Raphson 達到最大迭代次數 ${this._config.maxNewtonIterations} 但未收斂`);
     return false;
   }
 

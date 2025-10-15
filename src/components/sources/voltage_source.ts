@@ -26,11 +26,18 @@ export class VoltageSource implements ComponentInterface, SourceInterface, Scala
   // 相當於給電壓源串聯一個極大的電阻 (1/PIVOT_TOLERANCE ≈ 1TΩ)
   private static readonly PIVOT_TOLERANCE = 1e-12;
 
-  private _currentIndex?: number;
+  private _extraVarIndices: number[] = [];
   private _waveform: WaveformDescriptor;
   private _dcScaleFactor = 1.0; // 新增：直流缩放因子（用于源步进）
 
   private _originalValue: number;
+
+  /**
+   * 🔢 Get current index (for backward compatibility)
+   */
+  private get _currentIndex(): number | undefined {
+    return this._extraVarIndices[0];
+  }
 
   constructor(
     public readonly name: string,
@@ -79,9 +86,27 @@ export class VoltageSource implements ComponentInterface, SourceInterface, Scala
 
   /**
    * 🔢 设置电流支路索引
+   * @deprecated Use setExtraVariableIndices instead
    */
   setCurrentIndex(index: number): void {
-    this._currentIndex = index;
+    this.setExtraVariableIndices([index]);
+  }
+
+  /**
+   * 🔢 统一设置额外变量索引
+   */
+  setExtraVariableIndices(indices: number[]): void {
+    if (indices.length !== 1) {
+      throw new Error(`VoltageSource ${this.name} requires exactly 1 extra variable index (current).`);
+    }
+    this._extraVarIndices = indices;
+  }
+
+  /**
+   * 🔢 获取额外变量数量
+   */
+  getExtraVariableCount(): number {
+    return 1; // 电压源需要1个额外变量 (电流)
   }
 
   /**
@@ -473,11 +498,11 @@ export class VoltageSource implements ComponentInterface, SourceInterface, Scala
       if (index === undefined) {
         throw new Error(`无法为电压源 ${this.name} 获取电流支路索引`);
       }
-      this._currentIndex = index;
+      this.setExtraVariableIndices([index]);
     }
 
     // 从解向量中直接读取电流值
-    return voltages.get(this._currentIndex);
+    return voltages.get(this._currentIndex!);
   }
 
   /**
@@ -550,13 +575,6 @@ export class VoltageSource implements ComponentInterface, SourceInterface, Scala
         currentIndex: '#'
       }
     };
-  }
-
-  /**
-   * 🏃‍♂️ 获取需要的额外变量数量
-   */
-  getExtraVariableCount(): number {
-    return 1; // 需要一个电流变量
   }
 
   /**

@@ -15,9 +15,22 @@ export class IdealTransformer implements ComponentInterface {
   // 用於解決擴展MNA中理想變壓器引起的零對角線問題
   private static readonly PIVOT_TOLERANCE = 1e-12;
 
-  // 需要两个额外的支路电流变量：初级和次级
-  private _primaryCurrentIndex?: number;
-  private _secondaryCurrentIndex?: number;
+  // 额外变量索引：初级电流和次级电流
+  private _extraVarIndices: number[] = [];
+
+  /**
+   * 🔢 Get primary current index (for backward compatibility)
+   */
+  private get _primaryCurrentIndex(): number | undefined {
+    return this._extraVarIndices[0];
+  }
+
+  /**
+   * 🔢 Get secondary current index (for backward compatibility)
+   */
+  private get _secondaryCurrentIndex(): number | undefined {
+    return this._extraVarIndices[1];
+  }
 
   constructor(
     public readonly name: string,
@@ -38,16 +51,33 @@ export class IdealTransformer implements ComponentInterface {
 
   /**
    * 🔢 设置电流支路索引
+   * @deprecated Use setExtraVariableIndices instead
    */
   setCurrentIndices(primaryIndex: number, secondaryIndex: number): void {
-    if (primaryIndex < 0 || secondaryIndex < 0) {
-      throw new Error(`变压器 ${this.name} 的电流索引必须为非负数: primary=${primaryIndex}, secondary=${secondaryIndex}`);
+    this.setExtraVariableIndices([primaryIndex, secondaryIndex]);
+  }
+
+  /**
+   * 🔢 统一设置额外变量索引
+   */
+  setExtraVariableIndices(indices: number[]): void {
+    if (indices.length !== 2) {
+      throw new Error(`IdealTransformer ${this.name} requires exactly 2 extra variable indices (primary current, secondary current).`);
     }
-    if (primaryIndex === secondaryIndex) {
-      throw new Error(`变压器 ${this.name} 的初级和次级电流索引不能相同: ${primaryIndex}`);
+    if (indices[0]! < 0 || indices[1]! < 0) {
+      throw new Error(`变压器 ${this.name} 的电流索引必须为非负数: primary=${indices[0]}, secondary=${indices[1]}`);
     }
-    this._primaryCurrentIndex = primaryIndex;
-    this._secondaryCurrentIndex = secondaryIndex;
+    if (indices[0] === indices[1]) {
+      throw new Error(`变压器 ${this.name} 的初级和次级电流索引不能相同: ${indices[0]}`);
+    }
+    this._extraVarIndices = indices;
+  }
+
+  /**
+   * 🔢 获取额外变量数量
+   */
+  getExtraVariableCount(): number {
+    return 2; // 变压器需要2个额外变量 (初级电流 + 次级电流)
   }
 
   /**
@@ -102,11 +132,6 @@ export class IdealTransformer implements ComponentInterface {
     // 方程2: 电流关系 n*ip + is = 0
     MNAStampingHelpers.safeMatrixAdd(context.matrix, is, ip, n, this.name);
     MNAStampingHelpers.safeMatrixAdd(context.matrix, is, is, 1, this.name);
-  }
-
-
-  getExtraVariableCount(): number {
-    return 2; // 需要两个额外的电流变量
   }
 
   /**
