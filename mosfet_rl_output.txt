@@ -1,0 +1,1439 @@
+================================================================================
+皜祈岫嚗gMosfet RL ?餉楝
+================================================================================
+
+?餉楝?:
+  Vdd: 12V
+  R: 1峏
+  L: 1mH
+  PWM: 10kHz, 50% duty
+
+MOSFET ?:
+  VTO: 4V
+  KP: 20mA/V簡
+  W/L: 99999.99999999999
+
+??隞輻?...
+?? ?? DC 撌乩?暺???..
+?? ???折頝荔??芸??岫皞郊??..
+?? 皞郊?莎??曉 2 ?蝮格??
+[L1 assemble entry #0] R_coeff=undefined, dt=0, prevSol=true
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=0.00e+0 (tol=1.00e-9), delta=0.00e+0 (tol=1.00e-6), converged=true
+[L1 assemble entry #1] R_coeff=undefined, dt=0, prevSol=true
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.00e+0 (tol=1.00e-9), delta=5.20e+0 (tol=1.01e-6), converged=false
+[L1 assemble entry #2] R_coeff=undefined, dt=0, prevSol=true
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.04e-11 (tol=1.00e-9), delta=1.27e-11 (tol=1.01e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.00e+0 (tol=1.00e-9), delta=5.20e+0 (tol=1.01e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.04e-11 (tol=1.00e-9), delta=1.27e-11 (tol=1.01e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.00e+0 (tol=1.00e-9), delta=5.20e+0 (tol=1.02e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.04e-11 (tol=1.00e-9), delta=1.27e-11 (tol=1.02e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=3.00e+0 (tol=1.00e-9), delta=5.20e+0 (tol=1.02e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.04e-11 (tol=1.00e-9), delta=1.27e-11 (tol=1.02e-6), converged=true
+   >>> PHYSICAL_CHECK: solution_size=8, nodes=5
+   >>> PHYSICAL_CHECK: voltage_sources_found=1
+   >>> PHYSICAL_CHECK: zero_count=2/5, max_V=12.000000V
+   >>> PHYSICAL_CHECK_RESULT: PASS (non_zero=3, max_V=12.000V)
+?? Generalized-帢 integrator restarted with consistent DC operating point.
+[RAMP_DEBUG] In ramp from Vgate, t=0.0000e+0s, setting dt to 5.000e-10s (ramp: 5.0e-10s-1.0e-9s), ramp ends at 1.0000e-11s
+[L1 assemble #0] t=5.000e-10, dt=1.000e-11, i_prev=6.001e-24A, Req=4.000e+6峏, Veq=-2.400e-17V, R_coeff=4.000e+9
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 5.000e-10s, dt: 1.000e-11s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 0.0000V, Vds: 12.0000V, Vbs: 0.0000V
+  mode: normal
+
+?餅?????
+  cdrain: 0.000000mA
+  gm: 0.000000mS
+  gds: 0.001000mS
+  gmbs: 0.000000mS
+  cdreq: -0.012000mA
+  xnrm: 1, xrev: 0
+============================================================
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[L1 assemble #1] t=5.000e-10, dt=1.000e-11, i_prev=6.001e-24A, Req=4.000e+6峏, Veq=-2.400e-17V, R_coeff=4.000e+9
+?? M1 ?餃??: ?Vgs=1.500V, ?Vds=0.000V
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 5.000e-10s, dt: 1.000e-11s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 4.5000V, Vds: 4.6154V, Vbs: 0.0000V
+  mode: normal
+
+?餅?????
+  cdrain: 13287.895954mA
+  gm: 235806.559008mS
+  gds: 127.017654mS
+  gmbs: 76106.239664mS
+  cdreq: -1048427.854773mA
+  xnrm: 1, xrev: 0
+============================================================
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[L1 assemble #2] t=5.000e-10, dt=1.000e-11, i_prev=6.001e-24A, Req=4.000e+6峏, Veq=-2.400e-17V, R_coeff=4.000e+9
+?? M1 ?餃??: ?Vgs=0.000V, ?Vds=2886.678V
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 5.000e-10s, dt: 1.000e-11s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 6.0000V, Vds: 2.0000V, Vbs: 0.0000V
+  mode: normal
+
+?餅?????
+  cdrain: 2652822.794747mA
+  gm: 3289911.397374mS
+  gds: 26008.067615mS
+  gmbs: 1061814.337711mS
+  cdreq: -17138661.724725mA
+  xnrm: 1, xrev: 0
+============================================================
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[L1 assemble #3] t=5.000e-10, dt=1.000e-11, i_prev=6.001e-24A, Req=4.000e+6峏, Veq=-2.400e-17V, R_coeff=4.000e+9
+?? M1 ?餃??: ?Vgs=0.000V, ?Vds=99.500V
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 5.000e-10s, dt: 1.000e-11s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 6.0000V, Vds: 0.5000V, Vbs: 0.0000V
+  mode: reverse
+
+?餅?????
+  cdrain: 2034196.351329mA
+  gm: 1005000.000000mS
+  gds: 3586133.463372mS
+  gmbs: 556049.751848mS
+  cdreq: 6569395.256282mA
+  xnrm: 0, xrev: 1
+============================================================
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[L1 assemble #4] t=5.000e-10, dt=1.000e-11, i_prev=6.001e-24A, Req=4.000e+6峏, Veq=-2.400e-17V, R_coeff=4.000e+9
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 5.000e-10s, dt: 1.000e-11s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 6.0000V, Vds: 0.1048V, Vbs: 0.0000V
+  mode: reverse
+
+?餅?????
+  cdrain: 356447.480761mA
+  gm: 209808.155540mS
+  gds: 3300059.403670mS
+  gmbs: 74194.597616mS
+  cdreq: 1277990.591856mA
+  xnrm: 0, xrev: 1
+============================================================
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 5.000e-10s, dt: 1.000e-11s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 6.0000V, Vds: 0.0053V, Vbs: 0.0000V
+  mode: reverse
+
+?餅?????
+  cdrain: 17273.999316mA
+  gm: 10682.112685mS
+  gds: 3229195.960980mS
+  gmbs: 3463.049841mS
+  cdreq: 64140.619346mA
+  xnrm: 0, xrev: 1
+============================================================
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 5.000e-10s, dt: 1.000e-11s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 6.0000V, Vds: 0.0000V, Vbs: 0.0000V
+  mode: reverse
+
+?餅?????
+  cdrain: 47.675462mA
+  gm: 29.562258mS
+  gds: 3225413.826442mS
+  gmbs: 9.541295mS
+  cdreq: 177.373916mA
+  xnrm: 0, xrev: 1
+============================================================
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 5.000e-10s, dt: 1.000e-11s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 6.0000V, Vds: 0.0000V, Vbs: 0.0000V
+  mode: normal
+
+?餅?????
+  cdrain: 0.002633mA
+  gm: 0.001633mS
+  gds: 3225403.330178mS
+  gmbs: 0.000527mS
+  cdreq: -0.009797mA
+  xnrm: 1, xrev: 0
+============================================================
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 5.000e-10s, dt: 1.000e-11s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 6.0000V, Vds: 0.0000V, Vbs: 0.0000V
+  mode: normal
+
+?餅?????
+  cdrain: 0.003000mA
+  gm: 0.001860mS
+  gds: 3225403.329958mS
+  gmbs: 0.000600mS
+  cdreq: -0.011161mA
+  xnrm: 1, xrev: 0
+============================================================
+[RAMP_DEBUG] In ramp from Vgate, t=5.0000e-10s, setting dt to 5.000e-10s (ramp: 5.0e-10s-1.0e-9s), ramp ends at 1.0000e-9s
+[BREAKPOINT_DEBUG] t=5.0000e-10s, dt=5.0000e-10s. Found breakpoint from Vgate at t=1.0000e-9s.
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 1.000e-9s, dt: 5.000e-10s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 6.0000V, Vds: 0.0000V, Vbs: 0.0000V
+  mode: normal
+
+?餅?????
+  cdrain: 0.003000mA
+  gm: 0.001860mS
+  gds: 3225403.329458mS
+  gmbs: 0.000600mS
+  cdreq: -0.011161mA
+  xnrm: 1, xrev: 0
+============================================================
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?? M1 ?餃??: ?Vgs=4.000V, ?Vds=0.000V
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 1.000e-9s, dt: 5.000e-10s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 8.0000V, Vds: 0.0000V, Vbs: 0.0000V
+  mode: reverse
+
+?餅?????
+  cdrain: 0.025003mA
+  gm: 0.006921mS
+  gds: 7225403.333992mS
+  gmbs: 0.002234mS
+  cdreq: 0.055367mA
+  xnrm: 0, xrev: 1
+============================================================
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 1.000e-9s, dt: 5.000e-10s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 12.0000V, Vds: 0.0000V, Vbs: 0.0000V
+  mode: normal
+
+?餅?????
+  cdrain: 0.058335mA
+  gm: 0.007663mS
+  gds: 15225403.324762mS
+  gmbs: 0.002473mS
+  cdreq: -0.091954mA
+  xnrm: 1, xrev: 0
+============================================================
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+
+============================================================
+? MOSFET M1 ?祆?蝚砌?甇亥那??============================================================
+??: 1.000e-9s, dt: 5.000e-10s
+G_coeff: 4.000e+9
+
+?餃????
+  Vgs: 12.0000V, Vds: 0.0000V, Vbs: 0.0000V
+  mode: normal
+
+?餅?????
+  cdrain: 0.000000mA
+  gm: 0.000000mS
+  gds: 15225403.331259mS
+  gmbs: 0.000000mS
+  cdreq: 0.000000mA
+  xnrm: 1, xrev: 0
+============================================================
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] t=4.9217e-5s, dt=1.0000e-6s. Found breakpoint from Vgate at t=5.0001e-5s.
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] Hit breakpoint at t=5.0001e-5s, restarting integrator.
+[BREAKPOINT_DEBUG] Recomputing DC operating point at breakpoint...
+[BREAKPOINT_DEBUG] Initial residual at breakpoint: 4.987e+0
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 1: residual = 6.399e+4
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 2: residual = 2.248e+5
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 3: residual = 1.006e+6
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 4: residual = 6.698e+6
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 5: residual = 1.339e+5
+[BREAKPOINT_DEBUG] Set post-breakpoint dt to 1.00e-9s
+[RAMP_DEBUG] In ramp from Vgate, t=5.0001e-5s, setting dt to 1.000e-9s (ramp: 5.0e-10s-1.0e-9s), ramp ends at 5.0002e-5s
+[BREAKPOINT_DEBUG] t=5.0001e-5s, dt=1.0000e-9s. Found breakpoint from Vgate at t=5.0002e-5s.
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] t=9.9365e-5s, dt=1.0000e-6s. Found breakpoint from Vgate at t=1.0000e-4s.
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] Hit breakpoint at t=1.0000e-4s, restarting integrator.
+[BREAKPOINT_DEBUG] Recomputing DC operating point at breakpoint...
+[BREAKPOINT_DEBUG] Initial residual at breakpoint: 3.600e-8
+[BREAKPOINT_DEBUG] Set post-breakpoint dt to 1.00e-9s
+[RAMP_DEBUG] In ramp from Vgate, t=1.0000e-4s, setting dt to 1.000e-9s (ramp: 5.0e-10s-1.0e-9s), ramp ends at 1.0000e-4s
+[BREAKPOINT_DEBUG] t=1.0000e-4s, dt=1.0000e-9s. Found breakpoint from Vgate at t=1.0000e-4s.
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] t=1.4995e-4s, dt=1.0000e-6s. Found breakpoint from Vgate at t=1.5000e-4s.
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] Hit breakpoint at t=1.5000e-4s, restarting integrator.
+[BREAKPOINT_DEBUG] Recomputing DC operating point at breakpoint...
+[BREAKPOINT_DEBUG] Initial residual at breakpoint: 2.011e+2
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 1: residual = 1.729e+5
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 2: residual = 3.270e+5
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 3: residual = 6.550e+5
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 4: residual = 1.478e+6
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 5: residual = 7.238e+6
+[BREAKPOINT_DEBUG] Set post-breakpoint dt to 1.00e-9s
+[RAMP_DEBUG] In ramp from Vgate, t=1.5000e-4s, setting dt to 1.000e-9s (ramp: 5.0e-10s-1.0e-9s), ramp ends at 1.5000e-4s
+[BREAKPOINT_DEBUG] t=1.5000e-4s, dt=1.0000e-9s. Found breakpoint from Vgate at t=1.5000e-4s.
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] t=1.9937e-4s, dt=1.0000e-6s. Found breakpoint from Vgate at t=2.0000e-4s.
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] Hit breakpoint at t=2.0000e-4s, restarting integrator.
+[BREAKPOINT_DEBUG] Recomputing DC operating point at breakpoint...
+[BREAKPOINT_DEBUG] Initial residual at breakpoint: 3.600e-8
+[BREAKPOINT_DEBUG] Set post-breakpoint dt to 1.00e-9s
+[RAMP_DEBUG] In ramp from Vgate, t=2.0000e-4s, setting dt to 1.000e-9s (ramp: 5.0e-10s-1.0e-9s), ramp ends at 2.0000e-4s
+[BREAKPOINT_DEBUG] t=2.0000e-4s, dt=1.0000e-9s. Found breakpoint from Vgate at t=2.0000e-4s.
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] t=2.4995e-4s, dt=1.0000e-6s. Found breakpoint from Vgate at t=2.5000e-4s.
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] Hit breakpoint at t=2.5000e-4s, restarting integrator.
+[BREAKPOINT_DEBUG] Recomputing DC operating point at breakpoint...
+[BREAKPOINT_DEBUG] Initial residual at breakpoint: 2.011e+2
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 1: residual = 1.729e+5
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 2: residual = 3.270e+5
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 3: residual = 6.551e+5
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 4: residual = 1.478e+6
+?妙 雿輻 numeric 瘙圾??瘙圾 8x8 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] After Newton step 5: residual = 7.239e+6
+[BREAKPOINT_DEBUG] Set post-breakpoint dt to 1.00e-9s
+[RAMP_DEBUG] In ramp from Vgate, t=2.5000e-4s, setting dt to 1.000e-9s (ramp: 5.0e-10s-1.0e-9s), ramp ends at 2.5000e-4s
+[BREAKPOINT_DEBUG] t=2.5000e-4s, dt=1.0000e-9s. Found breakpoint from Vgate at t=2.5000e-4s.
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] t=2.9937e-4s, dt=1.0000e-6s. Found breakpoint from Vgate at t=3.0000e-4s.
+?妙 雿輻 numeric 瘙圾??瘙圾 7x7 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[BREAKPOINT_DEBUG] Hit breakpoint at t=3.0000e-4s, restarting integrator.
+[BREAKPOINT_DEBUG] Recomputing DC operating point at breakpoint...
+[BREAKPOINT_DEBUG] Initial residual at breakpoint: 3.600e-8
+[BREAKPOINT_DEBUG] Set post-breakpoint dt to 1.00e-9s
+
+隞輻?蝯?:
+  ??? ????
+  ??: 0.132蝘?  ?豢?暺? 404
+
+?蝭暺???
+
+蝚砌???PWM ?望?:
+  ??: 100.000弮s
+  V_gate: 0.000V
+  V_drain: 12.000V
+  I_L (隡?: 0.000A
+
+蝚砌???PWM ?望?:
+  ??: 200.000弮s
+  V_gate: 0.000V
+  V_drain: 12.000V
+  I_L (隡?: 0.000A
+
+蝛拙??扳炎??
+  NaN 瑼Ｘ葫: ????  Inf 瑼Ｘ葫: ????  ?憭折憯? 4355.109V
+
+?豢?撌脖?摮: test_ng_mosfet_rl_output.json
+CSV ?豢?撌脖?摮: test_ng_mosfet_rl_output.csv
+
+================================================================================
+皜祈岫蝯?: ??憭望?
+================================================================================

@@ -1,0 +1,632 @@
+皜祈岫?箸?祆???嚗 MOSFET嚗?..
+
+?? ?? DC 撌乩?暺???..
+?? 瑼Ｘ葫?啁?蝺折頝荔??湔雿輻璅?瘙圾??..
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=1.20e+1 (tol=1.00e-9), delta=1.21e+1 (tol=1.01e-6), converged=false
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 1] residual=1.70e-11 (tol=1.00e-9), delta=1.20e-11 (tol=1.01e-6), converged=true
+?? Generalized-帢 integrator restarted with consistent DC operating point.
+[TRAP-INIT] Forcing ground node (index=1) to 0: was 0.000001
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+[TRAP-SUBMATRIX] Excluding ground node (index=1) from 3x3 system
+[TRAP-SUBMATRIX] Subsystem: 2x2
+[TRAP-SUBMATRIX] Inverse mapping: [ 0, 2 ]
+[TRAP-SUBMATRIX] Sub-residual: [ 0, 12 ]
+?妙 雿輻 numeric 瘙圾??瘙圾 2x2 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+[TRAP-SUBMATRIX] Sub-delta: [ 12.0000000000012, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Mapping sub-index 0 -> original 0, value=1.200e+1
+[TRAP-SUBMATRIX] Mapping sub-index 1 -> original 2, value=-1.200e+0
+[TRAP-SUBMATRIX] Full delta: [ 12.0000000000012, 0, -1.2000120000001202 ]
+[TRAP-SUBMATRIX] Solve complete
+? 皞??敹怎: t=0, enabled=true
+? ???敹怎...
+
+======================================================================
+? ?憭望?敹怎: failure_timestep_minimum_t0_000e_0_2025-10-18T15-38-28
+======================================================================
+??敹怎撌脖?摮: ./snapshots/
+   - failure_timestep_minimum_t0_000e_0_2025-10-18T15-38-28_meta.json
+   - failure_timestep_minimum_t0_000e_0_2025-10-18T15-38-28_solution.txt
+   - failure_timestep_minimum_t0_000e_0_2025-10-18T15-38-28_residual.txt
+   - failure_timestep_minimum_t0_000e_0_2025-10-18T15-38-28_rhs.txt
+   - failure_timestep_minimum_t0_000e_0_2025-10-18T15-38-28_jacobian.mtx
+   - failure_timestep_minimum_t0_000e_0_2025-10-18T15-38-28_newton_history.csv
+   - failure_timestep_minimum_t0_000e_0_2025-10-18T15-38-28_verify.py
+   - failure_timestep_minimum_t0_000e_0_2025-10-18T15-38-28_summary.txt
+======================================================================
+??敹怎撌脖?摮? failure_timestep_minimum_t0_000e_0_2025-10-18T15-38-28
+??隞輻?憭望?: undefined

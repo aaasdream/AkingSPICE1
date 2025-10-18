@@ -119,6 +119,14 @@ export class VoltageSource implements ComponentInterface, SourceInterface, Scala
       return this._dcValue;
     }
 
+    return this.getValueForTransient(time);
+  }
+
+  /**
+   * 🆕 瞬态分析专用的电压计算方法
+   * 不会触发 time === 0 的 DC 分析逻辑
+   */
+  private getValueForTransient(time: number): number {
     switch (this._waveform.type) {
       case 'DC':
         // For transient analysis, use the original unscaled value.
@@ -237,7 +245,13 @@ export class VoltageSource implements ComponentInterface, SourceInterface, Scala
     }
 
     const iv = this._currentIndex;
-    const voltage = this.getValue(context.currentTime);
+    
+    // 🔥 CRITICAL FIX: 在瞬态分析中 (G_coeff !== undefined)，即使 time=0 也应该计算波形值
+    // 而不是返回 DC 值。这确保 SIN/PULSE 等波形在 t=0 时有正确的初始值。
+    const isTransientAnalysis = context.G_coeff !== undefined;
+    const voltage = isTransientAnalysis && context.currentTime === 0
+      ? this.getValueForTransient(0)  // 在瞬态分析的 t=0 时刻，强制计算波形值
+      : this.getValue(context.currentTime);
 
     // Minimal debug logging at failure time
     const isFailureWindow = context.currentTime > 1.0e-6 && context.currentTime < 1.011e-6;
@@ -255,31 +269,35 @@ export class VoltageSource implements ComponentInterface, SourceInterface, Scala
     }
 
     // C 矩陣: 支路到節點的關聯 (KVL)
-    // 🔧 修復：SPICE 標準是 V(n2) - V(n1) = Vs (n2 是正極)
-    // 因此 KVL 方程為: -V(n1) + V(n2) = Vs
+    // 🔧 修復：ngspice 標準是 V(positive) - V(negative) = Vs
+    // 因此 KVL 方程為: +V(n1) - V(n2) = Vs  (n1 是正極, n2 是負極)
+    // 參考: ngspice/src/spicelib/devices/vsrc/vsrcload.c lines 49-50
+    // *(here->VSRCibrPosptr) += 1.0;  // +V(pos)
+    // *(here->VSRCibrNegptr) -= 1.0;  // -V(neg)
     if (n1 !== undefined && n1 >= 0) {
-      context.matrix.add(iv, n1, -1);  // -V(n1)
+      context.matrix.add(iv, n1, 1);   // +V(n1)  ✅ 修正符號
     }
     if (n2 !== undefined && n2 >= 0) {
-      context.matrix.add(iv, n2, 1);   // +V(n2)
+      context.matrix.add(iv, n2, -1);  // -V(n2)  ✅ 修正符號
     }
 
     // 🔥🔥🔥 關鍵修復：樞軸擾動 (Pivot Perturbation) 🔥🔥🔥
     // 在 (iv, iv) 位置添加一個極小的非零值，確保 Jacobian 矩陣總是可逆
     // 原方程: V+ - V- = Vs (對角線元素為 0，導致矩陣奇異)
-    // 修正後: V+ - V- + (gmin)*I_source = Vs (對角線元素為 gmin)
+    // 修正後: V+ - V- + (1e-12)*I_source = Vs (對角線元素為 1e-12)
     //
-    // 物理意義: 相當於給理想電壓源串聯一個 1/gmin 的極大電阻
-    // 對實際結果影響: < 1pA (完全可忽略)
-    // 對數值穩定性影響: 條件數從 10^13 降到 10^8 (巨大改善！)
+    // 物理意義: 相當於給理想電壓源串聯一個 1e12 Ω 的極大電阻
+    // 對實際結果影響: < 1e-12 A (完全可忽略)
+    // 對數值穩定性影響: 防止矩陣奇異
     //
-    // 🔥 NEW: 瞬態 Gmin Stepping 支持
-    // 如果 context.gmin > 0 (例如 1e-6 在瞬態初期)，使用較大的 gmin 改善條件數
-    // 否則回退到默認的 PIVOT_TOLERANCE = 1e-12
-    const effectivePivotTolerance = (context.gmin && context.gmin > 0)
-      ? context.gmin
-      : VoltageSource.PIVOT_TOLERANCE;
-    context.matrix.add(iv, iv, effectivePivotTolerance);
+    // ⚠️ 重要：不使用 context.gmin (Gmin Stepping)！
+    // Gmin Stepping 是用來穩定非線性元件（MOSFET, 二極體）的，
+    // 不應該影響理想電壓源的約束。使用 context.gmin=1e-6 會把
+    // 理想電壓源變成 1 MΩ 串聯電阻，完全破壞電壓源特性！
+    //
+    // 參考 ngspice: vsrcload.c 中電壓源的對角線擾動是固定的極小值，
+    // 不隨 Gmin Stepping 變化。
+    context.matrix.add(iv, iv, VoltageSource.PIVOT_TOLERANCE);
 
     // 电压约束: V+ - V- = Vs
     context.rhs.add(iv, voltage);

@@ -867,15 +867,9 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     // 檢查 1：是否有電壓源？
     const voltageSources = Array.from(this._devices.values()).filter(d => {
       if (d.type !== 'V') return false;
-      // VoltageSource 有 dcValue 屬性
-      if ('dcValue' in d) {
-        return Math.abs((d as any).dcValue) > 1e-6;
-      }
-      // 兼容其他可能有 value 屬性的源
-      if ('value' in d) {
-        return Math.abs((d as any).value) > 1e-6;
-      }
-      return false;
+      // 🔥 FIX: 不要只检查 dcValue，因为 SIN/PULSE 等波形的 dcValue 可能是 0
+      // 只要 type === 'V' 就算作有电压源
+      return true;
     });
 
     console.log(`   >>> PHYSICAL_CHECK: voltage_sources_found=${voltageSources.length}`);
@@ -883,6 +877,23 @@ export class CircuitSimulationEngine implements IMNASystem, IConvergenceHelper {
     if (voltageSources.length === 0) {
       // 沒有電壓源，全零解是合理的
       console.log('   >>> PHYSICAL_CHECK: No voltage sources, zero solution is valid');
+      return true;
+    }
+
+    // 🔥 FIX: 检查所有电压源的 DC 值是否都接近 0
+    // 对于 SIN/PULSE 等波形，dcValue 可能是 0，此时全零解是合理的
+    const hasNonZeroDcSource = voltageSources.some(d => {
+      if ('dcValue' in d) {
+        return Math.abs((d as any).dcValue) > 1e-6;
+      }
+      if ('value' in d) {
+        return Math.abs((d as any).value) > 1e-6;
+      }
+      return false;
+    });
+
+    if (!hasNonZeroDcSource) {
+      console.log('   >>> PHYSICAL_CHECK: All voltage sources have DC=0, zero solution is valid');
       return true;
     }
 

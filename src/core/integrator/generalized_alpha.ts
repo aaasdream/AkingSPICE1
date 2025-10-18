@@ -710,10 +710,12 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
     _dt: Time,   // Timestep (h) - unused in simplified version
     predicted: GeneralizedAlphaState
   ): Promise<NewtonResult> {
+    console.log(`[DEBUG-CORRECTSTEP] ENTRY: t=${t_n1}, predicted solution size=${predicted.solution.size}`);
     let v_n1 = predicted.solution.clone(); // Start with the predicted solution x_k
 
     // 🔥 CRITICAL FIX: Force ground node to exactly 0 at start of Newton
     const groundIndex = (system as any).getGroundNodeIndex?.();
+    console.log(`[DEBUG-CORRECTSTEP] Ground index: ${groundIndex}`);
     if (groundIndex !== undefined && groundIndex >= 0 && groundIndex < v_n1.size) {
       v_n1.set(groundIndex, 0.0);
     }
@@ -839,6 +841,7 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
     initialGuess: IVector,
     maxIterations: number
   ): NewtonResult {
+    console.log(`[DEBUG-NEWTON] ENTRY: maxIter=${maxIterations}, guess size=${initialGuess.size}`);
     let v_n1 = initialGuess.clone();
     let converged = false;
     let iterations = 0;
@@ -926,7 +929,7 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
       // 4. 求解線性系統 J * Δx = residual = b - J*x
       //    即 J * Δx = b - J*x_k，解出 Δx 後，x_{k+1} = x_k + Δx 將滿足 J*x_{k+1} ≈ b
       try {
-        const delta = this._solveNewtonStep(J, residual);
+        const delta = this._solveNewtonStep(J, residual, system);
 
         const deltaNorm = delta.norm();
 
@@ -1121,7 +1124,7 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
 
       // 4. 求解线性系统
       try {
-        const delta_x = this._solveNewtonStep(J_pseudo, G_x);
+        const delta_x = this._solveNewtonStep(J_pseudo, G_x, system);
 
         // 5. 更新解
         x = x.plus(delta_x) as Vector;
@@ -1204,17 +1207,69 @@ export class GeneralizedAlphaIntegrator implements IIntegrator {
    * 🔧 求解 Newton 步 - 使用改進的稀疏求解器！
    *
    * 求解線性系統 J * Δx = residual，其中 residual = b - J*x_k
+   * 
+   * 🔥 CRITICAL FIX: 使用 submatrix 方法正確處理 ground 節點
+   * 與 DC 分析保持一致，排除 ground 節點後求解子系統
    */
-  private _solveNewtonStep(jacobian: any, residual: IVector): VoltageVector {
-    console.log('🧮 執行 Newton 步求解...');
+  private _solveNewtonStep(jacobian: any, residual: IVector, system?: any): VoltageVector {
+    console.log('[DEBUG-SOLVE] Executing Newton step solve...');
+    console.log(`[DEBUG-SOLVE] Jacobian type: ${jacobian?.constructor?.name}, has solve: ${typeof jacobian?.solve}, has submatrix: ${typeof jacobian?.submatrix}`);
 
     const n = residual.size;
 
     try {
+      // 🔥 CRITICAL FIX: 獲取 ground 節點索引
+      const groundIndex = system?.getGroundNodeIndex?.();
+      console.log(`[DEBUG-SOLVE] Ground index: ${groundIndex}, system size: ${n}`);
+      
       // 如果jacobian是SparseMatrix，使用其改進的求解方法
       if (jacobian && typeof jacobian.solve === 'function') {
-        // 使用我們改進的求解器 (支持 numeric.js 和迭代求解器)
-        // 直接傳入 residual = b - J*x，求解 J * Δx = residual
+        console.log(`[DEBUG-SOLVE] Jacobian has solve method`);
+        // 🔥 CRITICAL FIX: 如果有 ground 節點，使用 submatrix 方法
+        if (groundIndex !== undefined && groundIndex >= 0 && groundIndex < n) {
+          console.log(`[DEBUG-SOLVE] Using submatrix method to exclude ground node (index=${groundIndex})...`);
+          
+          //檢查 submatrix 方法存在
+          if (typeof jacobian.submatrix !== 'function') {
+            console.error(`[DEBUG-SOLVE] ERROR: Jacobian has no submatrix method! Falling back to direct solve`);
+            const solution = jacobian.solve(residual);
+            console.log(`[DEBUG-SOLVE] Newton step complete (direct solve, ground not excluded)`);
+            return solution;
+          }
+          // 提取子矩陣（排除 ground 節點）
+          const { matrix: subJacobian, mapping: inverseMapping } = jacobian.submatrix([groundIndex], [groundIndex]);
+          
+          // 手動構造子向量（排除 ground 節點）
+          const subResidual = new (residual.constructor as any)(n - 1);
+          let subIdx = 0;
+          for (let i = 0; i < n; i++) {
+            if (i !== groundIndex) {
+              subResidual.set(subIdx++, residual.get(i));
+            }
+          }
+          
+          console.log(`📊 子系統: ${subJacobian.rows}x${subJacobian.cols} (原系統: ${n}x${n})`);
+          
+          // 求解子系統
+          const subSolution = subJacobian.solve(subResidual);
+          
+          // 重建完整解向量（ground 節點的增量為 0）
+          const fullSolution = new (residual.constructor as any)(n);
+          fullSolution.set(groundIndex, 0.0); // Ground 節點不變
+          
+          // inverseMapping[i] 給出子系統索引 i 對應的原始索引
+          for (let i = 0; i < subSolution.size; i++) {
+            const originalIndex = inverseMapping[i];
+            if (originalIndex !== undefined) {
+              fullSolution.set(originalIndex, subSolution.get(i));
+            }
+          }
+          
+          console.log(`✅ Newton步求解完成 (使用 submatrix 方法)`);
+          return fullSolution;
+        }
+        
+        // 沒有 ground 節點，直接求解
         console.log('🚀 使用改進的稀疏矩陣求解器...');
         const solution = jacobian.solve(residual);
         console.log(`✅ Newton步求解完成 (求解器: ${jacobian._solverMode || 'default'})`);

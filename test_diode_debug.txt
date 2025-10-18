@@ -1,0 +1,93 @@
+================================================================================
+蝞?????湔?瘚?
+================================================================================
+
+撘憪????..
+?? ?? DC 撌乩?暺???..
+?? ???折頝荔??芸??岫皞郊??..
+?? 皞郊?莎??曉 1 ?蝮格??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=0.00e+0 (tol=1.00e-9), delta=0.00e+0 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=0.00e+0 (tol=1.00e-9), delta=0.00e+0 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=0.00e+0 (tol=1.00e-9), delta=0.00e+0 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=0.00e+0 (tol=1.00e-9), delta=0.00e+0 (tol=1.00e-6), converged=true
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+  [DC Iter 0] residual=0.00e+0 (tol=1.00e-9), delta=0.00e+0 (tol=1.00e-6), converged=true
+   >>> PHYSICAL_CHECK: solution_size=4, nodes=3
+   >>> PHYSICAL_CHECK: voltage_sources_found=1
+   >>> PHYSICAL_CHECK: All voltage sources have DC=0, zero solution is valid
+?? Generalized-帢 integrator restarted with consistent DC operating point.
+[BREAKPOINT_DEBUG] t=0.0000e+0s, dt=1.0000e-5s. Found breakpoint from Vac at t=0.0000e+0s.
+[BREAKPOINT_DEBUG] Already at or past breakpoint (0.00e+0s), proceeding normally.
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+?妙 雿輻 numeric 瘙圾??瘙圾 3x3 蝺抒頂蝯?..
+?? 雿輻 numeric.js 瘙圾蝔?蝺抒頂蝯?..
+??numeric.js 瘙圾??
+
+???:
+  n_ac -> 0
+  n_out -> 2
+  0 -> 1
+
+??10 銝芣?渡:
+  t=0.010ms: V_ac=0.045239V, V_out=0.000045V, V_d=0.045194V
+  t=0.025ms: V_ac=0.113096V, V_out=0.000056V, V_d=0.113039V
+  t=0.048ms: V_ac=0.214873V, V_out=0.000054V, V_d=0.214820V
+  t=0.081ms: V_ac=0.367509V, V_out=0.000000V, V_d=0.367508V
+  t=0.132ms: V_ac=0.596343V, V_out=0.000001V, V_d=0.596342V
+  t=0.208ms: V_ac=0.939160V, V_out=0.000001V, V_d=0.939159V
+  t=0.308ms: V_ac=1.389388V, V_out=0.000001V, V_d=1.389386V
+  t=0.408ms: V_ac=1.837641V, V_out=0.000002V, V_d=1.837639V
+  t=0.508ms: V_ac=2.283283V, V_out=0.000002V, V_d=2.283281V
+  t=0.608ms: V_ac=2.725680V, V_out=0.000003V, V_d=2.725677V

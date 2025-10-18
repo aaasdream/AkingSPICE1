@@ -164,7 +164,14 @@ export class TrapezoidalIntegrator {
     system.setIntegrationCoefficients(G_coeff, I_coeff, R_coeff, V_coeff);
 
     // 3. Newton-Raphson 迭代求解
-    let x = solution;  // 初始猜測
+    let x = solution.clone();  // 初始猜測（克隆以避免修改原始解）
+    
+    // 🔥 CRITICAL FIX: Force ground node to exactly 0 before Newton iteration
+    const groundIndex = (system as any).getGroundNodeIndex?.();
+    if (groundIndex !== undefined && groundIndex >= 0 && groundIndex < x.size) {
+      x.set(groundIndex, 0.0);
+    }
+    
     const maxIterations = this._options.maxNewtonIterations;
     const newtonTol = 1e-7;
     let converged = false;
@@ -178,9 +185,20 @@ export class TrapezoidalIntegrator {
       const J = system.systemMatrix;
       const b = system.getRHS();
 
-      // 計算殘量
-      const residual = b;
-      const residualNorm = (residual as IVector).norm();
+      // 🔥 CRITICAL FIX: 正確計算殘差 residual = b - J*x
+      // 這是 Newton-Raphson 方法的核心：我們要使 F(x) = 0
+      // 對於 J*x = b 形式的方程，F(x) = J*x - b = 0
+      // 因此 residual = b - J*x (or F(x) = J*x - b, depending on sign convention)
+      const Jx = J.multiply(x);
+      const residual = (b as IVector).minus(Jx as IVector);
+      
+      // 🔥 CRITICAL FIX: Exclude ground node from residual norm calculation
+      // Ground node is fixed at 0, so its residual is meaningless
+      if (groundIndex !== undefined && groundIndex >= 0 && groundIndex < residual.size) {
+        residual.set(groundIndex, 0.0);
+      }
+      
+      const residualNorm = residual.norm();
 
       this._log(`[TRAP]   Newton #${iterations}: ||F||=${residualNorm.toExponential(3)}`);
 
@@ -204,8 +222,48 @@ export class TrapezoidalIntegrator {
 
       // 求解增量
       try {
-        const delta = J.solve(residual);
+        // 🔥 CRITICAL FIX: Use submatrix method to exclude ground node
+        // Same fix as in DC analysis and GeneralizedAlphaIntegrator
+        const groundIndex = (system as any).getGroundNodeIndex?.();
+        let delta: IVector;
+        
+        if (groundIndex !== undefined && groundIndex >= 0 && groundIndex < residual.size && typeof J.submatrix === 'function') {
+          // Extract submatrix (exclude ground node)
+          const { matrix: subJ, mapping: inverseMapping } = J.submatrix([groundIndex], [groundIndex]);
+          
+          // Build sub-residual (exclude ground node)
+          const subResidual = new (residual.constructor as any)(residual.size - 1);
+          let subIdx = 0;
+          for (let i = 0; i < residual.size; i++) {
+            if (i !== groundIndex) {
+              subResidual.set(subIdx++, residual.get(i));
+            }
+          }
+          
+          // Solve subsystem
+          const subDelta = subJ.solve(subResidual);
+          
+          // Reconstruct full delta vector (ground node delta = 0)
+          delta = new (residual.constructor as any)(residual.size);
+          delta.set(groundIndex, 0.0); // Ground node doesn't change
+          
+          for (let i = 0; i < subDelta.size; i++) {
+            const originalIndex = inverseMapping[i];
+            if (originalIndex !== undefined) {
+              delta.set(originalIndex, subDelta.get(i));
+            }
+          }
+        } else {
+          // No ground node or submatrix method not available
+          delta = J.solve(residual);
+        }
+        
         x = x.plus(delta);
+        
+        // 🔥 CRITICAL FIX: Re-enforce ground node = 0 after each Newton iteration
+        if (groundIndex !== undefined && groundIndex >= 0 && groundIndex < x.size) {
+          x.set(groundIndex, 0.0);
+        }
       } catch (error) {
         this._log(`[TRAP]   ❌ Newton 求解失敗: ${error}`);
         return {
